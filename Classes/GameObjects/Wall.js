@@ -2,6 +2,7 @@ function Wall(){
   GameObject.apply(this,arguments);
 
   var wall = this;
+  this.physical = true;
 
   this.generateView = function(obj){
     var rect = document.createElementNS("http://www.w3.org/2000/svg",'rect');

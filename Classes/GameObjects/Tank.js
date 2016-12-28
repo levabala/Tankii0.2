@@ -17,9 +17,9 @@ function Tank(){
     setAttr(turret, 'height', 2);
     setAttr(turret, 'fill', 'darkred');
     var gun = document.createElementNS("http://www.w3.org/2000/svg",'rect');
-    setAttr(gun, 'x', 2);
+    setAttr(gun, 'x', obj.width*0.4);
     setAttr(gun, 'y', 2);
-    setAttr(gun, 'width', 1);
+    setAttr(gun, 'width', obj.width*0.2);
     setAttr(gun, 'height', obj.height-2);
     setAttr(gun, 'fill', 'red');
 
@@ -27,6 +27,7 @@ function Tank(){
     obj.svgBody.appendChild(turret);
     obj.svgBody.appendChild(gun);
   }
+  
 
   this.generateView(this);
 }
