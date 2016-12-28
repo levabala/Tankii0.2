@@ -9,7 +9,7 @@ function BuildTanksRoomFromSnap(snap,container){
       gameObj.id = objSnap.id;
       console.log('OOOOObj:',gameObj)
       tanksroom.setObject(gameObj.id, gameObj)
-      //pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createChildFun
+      //pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createObjectFun
     }
   return tanksroom
 }
@@ -29,7 +29,6 @@ function TanksRoom(map,jqcontainer){
   //operations with objects
   var counter = 0;
   this.appendObject = function(obj){
-    console.log('obj.id:', counter)
     obj.id = counter;
     tr.objects[counter] = obj;
     jqcontainer.append(obj.svgBody);
@@ -61,8 +60,12 @@ function TanksRoom(map,jqcontainer){
   }
 
   this.removeObject = function(obj){
-    jqcontainer.remove(obj.svgBody)
+    obj.svgBody.remove()
     delete tr.objects[obj.id];
+    
+    for (var dx = 0; dx < obj.width; dx++)
+      for (var dy = 0; dy < obj.height; dy++)
+        tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = {isobstacle: false};
   }
 
   //background
@@ -118,25 +121,27 @@ function TanksRoom(map,jqcontainer){
   }
 }
 
-function GameObject(pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createChildFun){
+function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelfFun,createObjectFun){
   var gobj = this;
 
   //base props
   this.pos = pos;
-  this.cellP = pos.clone();
+  this.cellP = new Pos(Math.floor(pos.X), Math.floor(pos.Y));
   this.map = map;
   this.width = width;
   this.height = height;
   this.rotation = rotation; // example: [1,0,0,0]  common view: [top,right,bottom,left]
   this.speed = speed;
   this.physical = physical; //is it an obstance or not
-  this.body = null;
+  this.svgBody = null;
   this.id = null;
+  this.hp = hp;
+  this.maxhp = hp;
 
   //external access
   this.destructSelfFun = destructSelfFun;
-  this.createChildFun = createChildFun;
-  this.commandsHandler = commandsHandler;
+  this.createObjectFun = createObjectFun;
+  this.commandsHandler = null;
 
   //object's doings
   this.tick = function(){
@@ -144,12 +149,24 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,commandsHand
   }
 
   this.damaged = function(damage){
+    if (gobj.deathless) return;
 
+    gobj.hp -= damage;
+    console.log(gobj.hp)
+    if (gobj.hp < 1)
+      gobj.destructSelf();
+
+    gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
   }
 
   this.destructSelf = function(){
-    mgobj.svgBody.setAttributeNS(null,'width','0');
-    mgobj.svgBody.setAttributeNS(null,'height','0');
+    gobj.svgBody.setAttributeNS(null,'width','0');
+    gobj.svgBody.setAttributeNS(null,'height','0');
+    gobj.destructSelfFun(gobj);
+  }
+
+  this.createObject = function(obj){
+    gobj.createObjectFun(obj);
   }
 
   //generate and set "body" tag
@@ -308,8 +325,8 @@ function MovableGameObject(){
     'toStop': mgobj.toStop
   }
 
-  this.setKeyBoardHandler = function(kbh){
-    mgobj.kbhandler = kbh;
+  this.setCommandsHandler = function(ch){
+    mgobj.commandsHandler = ch;
   }
 
   function initWaitingToRotate(rotation){

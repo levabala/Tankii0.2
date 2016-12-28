@@ -13,7 +13,7 @@ function initTanksRoomServer(){
   //svg.append(map1.generateMesh())
 
   tanksroom = new TanksRoom(map1,container);
-  tanksroom.appendObject(new Wall(new Pos(60,40), map1, 20, 30, 10, true))
+  tanksroom.appendObject(new Wall(new Pos(60,40), map1, 20, 30, 10, true, null, null, tanksroom.removeObject))
 
   var keymapdown1 = function(tank){
     return {
@@ -51,11 +51,12 @@ function initTanksRoomServer(){
     }
   }
 
-  var justTank = new Tank(new Pos(10,10), map1, 6, 6, 5, true, [0,1,0,0], 0.1)
+  var justTank = new Tank(new Pos(10,10), map1, 7, 7, 5, true, [0,1,0,0], 0.1, tanksroom.removeObject, tanksroom.appendObject)
 
   var kd1 = keymapdown1(justTank);
   var ku1 = keymapup1(justTank);
   var k1 = new KeyBoardHandler(window, kd1, ku1);
+  justTank.setCommandsHandler(k1)
 
   tanksroom.appendObject(justTank);
 
@@ -85,6 +86,9 @@ function initTanksRoomClient(){
         //console.log(changes[c])
         tanksroom.objects[c].setProperties(changes[c])
       }
+    },
+    'yourTankCreated': function(id){
+
     },
     'notification': function(notify){
       console.log('notification:',notify)
