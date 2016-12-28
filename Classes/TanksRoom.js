@@ -5,7 +5,7 @@ function BuildTanksRoomFromSnap(snap,container){
   for (var constr in snap.objects)
     for (var o in snap.objects[constr]){
       var objSnap = snap.objects[constr][o];
-      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed)
+      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
       gameObj.id = objSnap.id;
       console.log('OOOOObj:',gameObj)
       tanksroom.setObject(gameObj.id, gameObj)
@@ -39,6 +39,12 @@ function TanksRoom(map,jqcontainer){
         tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = obj;
 
     counter++;
+    tr.appendObjectHandler(obj);
+    return obj.id;
+  }
+
+  this.appendObjectHandler = function(obj){
+
   }
 
   this.setObject = function(id,obj){
@@ -62,7 +68,7 @@ function TanksRoom(map,jqcontainer){
   this.removeObject = function(obj){
     obj.svgBody.remove()
     delete tr.objects[obj.id];
-    
+
     for (var dx = 0; dx < obj.width; dx++)
       for (var dy = 0; dy < obj.height; dy++)
         tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = {isobstacle: false};
