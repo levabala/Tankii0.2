@@ -24,6 +24,7 @@ function disconnect(){
 }
 
 function initWebRtc() {
+  HideModal();
   console.log("Connecting to signaling server");
   signaling_socket = io.connect(SIGNALING_SERVER);
   signaling_socket.on('connect', function() {
@@ -229,11 +230,12 @@ function initWebRtc() {
      if (index != -1) activePeers.splice(index,1)
 
      if (peer_id in peers) {
+       console.log(peers[peer_id])
          peers[peer_id].peerConnection.close();
          peers[peer_id].sendDataChannel.close();
          peers[peer_id].recevingDataChannel.close();
-         if (peers[peer_id].clientTank) peers[peer_id].clientTank.destructSelf();
-         else console.warn('Ты даже не успел танком обзавестись :(')
+         if (peers[peer_id].linkedTank) peers[peer_id].linkedTank.destructSelf();
+         else console.warn('Какая жалость.. Он даже не успел танком обзавестись :(')
      }
      delete peers[peer_id];
  });

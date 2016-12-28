@@ -42,6 +42,29 @@
     #ToggleButton:hover {
       background: rgb(255,180,180);
     }
+
+    /* The Modal (background) */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+    }
   </style>
   <style>
     .beads {
@@ -114,12 +137,17 @@
 </head>
 <body>
   <h3>Tanks 1990</h3>
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      Хост ушёл пить чай.. Удачи :)
+    </div>
+  </div>
   <div id='ToggleButton'>
      <img id='ToggleImg' src="ToggleImage.png" width='50' height='45'>
   </div>
   <div id='ServersList'>
     <ul class="beads" id='ServerListUl'>
-      <li><a onclick="DEFAULT_ROOM = this.innerHTML; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
+      <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
     </ul>
   </div>
   <div style="border: solid darkred 1px; position: absolute; left: 10px; right: 100px; bottom: 10px; top: 40px; z-index: 0">
@@ -149,6 +177,23 @@
         menuOn = false;
       }
     }
+
+    // Get the modal
+    var modal = document.getElementById('myModal');
+
+    function ShowModal(){
+      modal.style.display = "block";
+    }
+
+    function HideModal(){
+      modal.style.display = "none";
+    }
+
+    /*
+    window.onclick = function(event) {
+        if (event.target == modal)
+          HideModal()
+    }*/
   </script>
 
   <script src="connect.js"></script>

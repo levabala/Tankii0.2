@@ -110,10 +110,19 @@ function AcceptClient(peer){
   });
   peer['linkedTank'] = clientTank;
 
+  peer.recevingDataChannel.onclose = function(){
+    console.warn('Неееееет... Мы потеряли игрока..');
+  }
+
   peer.sendDataChannel.send(JSON.stringify({type: 'yourTankCreated', value: tanksroom.appendObject(clientTank)}))
 }
 
 function initTanksRoomClient(){
+  var lastTime = 0;
+  var waitTimeLimit = 500;
+  var crazyWaitTimeCombo = 0;
+  var crazyWaitTimeComboLimit = 3;
+
   var messagesMap = {
     'roomSnap': function(snap){
       console.log('snap:',snap)
@@ -121,12 +130,21 @@ function initTanksRoomClient(){
       tanksroom.map.fitToContainer(svg.width(), svg.height());
     },
     'changes': function(changes){
+      var waitTime = performance.now() - lastTime;
+      if (waitTime > waitTimeLimit) crazyWaitTimeCombo++;
+      else {
+        crazyWaitTimeCombo = 0;
+        HideModal();
+      }
+      if (crazyWaitTimeCombo > crazyWaitTimeComboLimit) ShowModal();
+
       for (var c in changes){
         var cc = changes[c];
         if (cc.pos) cc.pos = new Pos(cc.pos.X, cc .pos.Y)
         //console.log(changes[c])
         tanksroom.objects[c].setProperties(changes[c])
-      }
+      }      
+      lastTime = performance.now();
     },
     'yourTankCreated': function(id){
       console.log('Yeeah! Now I have a tank!')
