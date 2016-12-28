@@ -44,14 +44,14 @@ var keymapup1 = function(tank){
 
 function initTanksRoomServer(){
 
-  var map1 = new Map(100,100);
+  var map1 = new Map(170,100);
   map1.fitToContainer(svg.width(), svg.height())
   //svg.append(map1.generateMesh())
 
   tanksroom = new TanksRoom(map1,container);
   tanksroom.appendObject(new Wall(new Pos(60,40), map1, 20, 30, 10, true, null, null, tanksroom.removeObject))
 
-  var justTank = new Tank(new Pos(10,10), map1, 7, 7, 5, true, [0,1,0,0], 0.1, tanksroom.removeObject, tanksroom.appendObject)
+  var justTank = new Tank(new Pos(10,10), map1, 7, 7, 5, true, [0,1,0,0], 0.2, tanksroom.removeObject, tanksroom.appendObject)
 
   var kd1 = keymapdown1(justTank);
   var ku1 = keymapup1(justTank);
@@ -67,7 +67,6 @@ function initTanksRoomServer(){
   }
 
   var GameSharingInterval = setInterval(function(){
-    //console.log(tanksroom.changedObjects)
     for (var p in activePeers)
       peers[activePeers[p]].sendDataChannel.send(JSON.stringify({type: 'changes', value: tanksroom.changedObjects}))
     tanksroom.AcceptChanges();
@@ -109,6 +108,7 @@ function AcceptClient(peer){
     var m = JSON.parse(e.data);
     messagesMap[m.type](m.value)
   });
+  peer['linkedTank'] = clientTank;
 
   peer.sendDataChannel.send(JSON.stringify({type: 'yourTankCreated', value: tanksroom.appendObject(clientTank)}))
 }

@@ -7,7 +7,6 @@ function BuildTanksRoomFromSnap(snap,container){
       var objSnap = snap.objects[constr][o];
       var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
       gameObj.id = objSnap.id;
-      console.log('OOOOObj:',gameObj)
       tanksroom.setObject(gameObj.id, gameObj)
       //pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createObjectFun
     }
@@ -217,7 +216,7 @@ function MovableGameObject(){
 
   //things to do when tick() occur
   this.IWantToDoSmth = function(){
-
+    return false;
   };
 
   //is it moving now (triggered)
@@ -266,9 +265,12 @@ function MovableGameObject(){
       mgobj.stop();
       mgobj.collisionCaseAction(collResult);
     }
-    mgobj.IWantToDoSmth();
-
     var changed = mgobj.moveOn;
+
+    var lastR = mgobj.rotation;
+    mgobj.IWantToDoSmth();
+    changed = changed || lastR != mgobj.rotation
+
     move();
 
     if (changed) mgobj.updateSvgBody();

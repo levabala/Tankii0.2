@@ -4,14 +4,24 @@ var ICE_SERVERS = [
   {url:"stun:stun.l.google.com:19302"}
 ];
 
+var room = window.location.hash.substring(1);
+if (room) DEFAULT_ROOM = room;
+
 var signaling_socket = null;   /* our socket.io connection to our webserver */
-var local_media_stream = null; /* our own microphone / webcam */
 var HostPeer = null;
 var HostId = false;
 var peers = {};                /* keep track of our peerConnection connections, indexed by peer_id (aka socket.io id) */
 var activePeers = [];
 var isServer = false;
 
+function disconnect(){
+  HostPeer = null;
+  HostId = false;
+  peers = {};                /* keep track of our peerConnection connections, indexed by peer_id (aka socket.io id) */
+  activePeers = [];
+  isServer = false;
+  signaling_socket.close();
+}
 
 function initWebRtc() {
   console.log("Connecting to signaling server");
@@ -43,11 +53,19 @@ function initWebRtc() {
   * in the channel you will connect directly to the other 5, so there will be a total of 15
   * connections in the network).
   */
+  signaling_socket.on('Servers', function(list){
+    console.log(list)
+    var sl = $('#ServersList');
+    sl[0].innerHTML = '';
 
+    for (var l in list)
+      sl[0].innerHTML += '<ul class=\"beads\" id=\'ServerListUl\'><li id=\'' + list[l] + '\'><a onclick=\"DEFAULT_ROOM = this.innerHTML; container.innerHTML = \'\'; disconnect();initWebRtc();\">' + list[l] + '</a></li></ul>';
+  });
 
   signaling_socket.on('NowYouAreHost', function(){
     initTanksRoomServer();
     isServer = true;
+    signaling_socket.emit('getServers');
     console.warn('Now I am a HOST')
   });
 
@@ -214,6 +232,8 @@ function initWebRtc() {
          peers[peer_id].peerConnection.close();
          peers[peer_id].sendDataChannel.close();
          peers[peer_id].recevingDataChannel.close();
+         if (peers[peer_id].clientTank) peers[peer_id].clientTank.destructSelf();
+         else console.warn('Ты даже не успел танком обзавестись :(')
      }
      delete peers[peer_id];
  });
