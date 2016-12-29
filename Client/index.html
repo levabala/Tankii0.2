@@ -3,6 +3,7 @@
   <meta charset="utf-8"/>
   <script src="ExternalLibs/adapter.js"></script>
   <script src="ExternalLibs/jquery.js"></script>
+  <script src="ExternalLibs/joystick.js"></script>
   <script src="ExternalLibs/socket.io.js"></script>
   <script src="Classes/common.js"></script>
   <script src="Classes/Map.js"></script>
@@ -67,6 +68,23 @@
     }
   </style>
   <style>
+    .button {
+      display: inline-block;
+      margin: 40px;
+      width: 100px;
+      height: 100px;
+      background: rgba(0,0,0,0.50);
+      cursor: pointer;
+      border-radius: 50%;
+
+      box-shadow: 0 3px 20px rgba(0,0,0,.25),
+      inset 0 2px 0 rgba(255,255,255,.6),
+      0 2px 0 rgba(0,0,0,.1),
+      inset 0 0 20px rgba(0,0,0,.1);
+    }
+    .button:active{
+      background: rgba(0,0,0,0.80);
+    }
     .beads {
       list-style: none;
       background: #EEE3DB;
@@ -136,33 +154,42 @@
   </style>
 </head>
 <body>
-  <h3>Tanks 1990</h3>
-  <div id="myModal" class="modal">
-    <div class="modal-content">
-      Хост ушёл пить чай.. Удачи :)
+  <div id='TotalDiv' style='position: absolute; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
+    <h3>Tanks 1990</h3>
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        Хост ушёл пить чай.. Удачи :)
+      </div>
     </div>
-  </div>
-  <div id='ToggleButton'>
-     <img id='ToggleImg' src="ToggleImage.png" width='50' height='45'>
+    <div id='ToggleButton'>
+       <img id='ToggleImg' src="ToggleImage.png" width='50' height='45'>
+    </div>
+    <div id='MainDiv' style="border: solid darkred 1px; position: absolute; left: 10px; right: 100px; bottom: 10px; top: 40px; z-index: 0">
+      <svg id="SVGRoom" style="width: 100%; height: 100%;border: solid green 1px">
+      </svg>
+    </div>
   </div>
   <div id='ServersList'>
     <ul class="beads" id='ServerListUl'>
       <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
     </ul>
   </div>
-  <div style="border: solid darkred 1px; position: absolute; left: 10px; right: 100px; bottom: 10px; top: 40px; z-index: 0">
-    <svg id="SVGRoom" style="width: 100%; height: 100%;border: solid green 1px">
-    </svg>
+  <div id='ShootButton' ontouchstart='if (mytank) mytank.shoot()' class='button' style='position: absolute; right: 60px; bottom: 60px'>
+
   </div>
   <script>
     //interface script
     var menuOn = false;
     var toggleBut = $('#ToggleImg')[0];
     $('#ServersList').animate({width:'toggle'},0);  //closed by default
-    toggleTheMenu(350);
+    //toggleTheMenu(350);
     $('#ToggleButton').click(function(){
        toggleTheMenu(350);
     });
+
+    $('#ServersList')[0].onmousedown = function(e){
+      e.stopPropagation();
+    }
 
     function toggleTheMenu(speed) {
       $('#ServersList').animate({ width: 'toggle' }, speed);
@@ -194,6 +221,19 @@
         if (event.target == modal)
           HideModal()
     }*/
+
+    var joystick = new VirtualJoystick({container: $('#TotalDiv')[0], mouseSupport: true})
+    joystick.addEventListener('touchStart', function(){
+      console.log('down')
+    })
+    joystick.addEventListener('touchEnd', function(){
+      console.log('up')
+    })
+    joystick.addEventListener('right', function(){
+      console.log('right')
+    })
+    console.log(joystick)
+
   </script>
 
   <script src="connect.js"></script>

@@ -1,11 +1,14 @@
-var SIGNALING_SERVER = "http://127.0.0.1:3030";
+var SIGNALING_SERVER = "http://62.84.116.86:3030";
 var DEFAULT_ROOM = 'OfficialRoom'
 var ICE_SERVERS = [
   {url:"stun:stun.l.google.com:19302"}
 ];
 
-var room = window.location.hash.substring(1);
+var hashes = window.location.hash.split('#')
+var room = getParameterByName('room')
+var signalingServerAddress = getParameterByName('signalingServerIp')
 if (room) DEFAULT_ROOM = room;
+if (signalingServerAddress) SIGNALING_SERVER = signalingServerAddress;
 
 var signaling_socket = null;   /* our socket.io connection to our webserver */
 var HostPeer = null;
@@ -13,6 +16,18 @@ var HostId = false;
 var peers = {};                /* keep track of our peerConnection connections, indexed by peer_id (aka socket.io id) */
 var activePeers = [];
 var isServer = false;
+
+function getParameterByName(name, url) {
+  if (!url) {
+    url = window.location.href;
+  }
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return null;
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 function disconnect(){
   HostPeer = null;
@@ -231,9 +246,9 @@ function initWebRtc() {
 
      if (peer_id in peers) {
        console.log(peers[peer_id])
-         peers[peer_id].peerConnection.close();
-         peers[peer_id].sendDataChannel.close();
-         peers[peer_id].recevingDataChannel.close();
+         if (peers[peer_id].peerConnection) peers[peer_id].peerConnection.close();
+         if (peers[peer_id].sendDataChannel) peers[peer_id].sendDataChannel.close();
+         if (peers[peer_id].recevingDataChannel) peers[peer_id].recevingDataChannel.close();
          if (peers[peer_id].linkedTank) peers[peer_id].linkedTank.destructSelf();
          else console.warn('Какая жалость.. Он даже не успел танком обзавестись :(')
      }

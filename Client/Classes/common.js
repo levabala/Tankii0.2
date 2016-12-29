@@ -30,6 +30,22 @@ function setAttr(obj,attr,value){
   obj.setAttributeNS(null,attr,value);
 }
 
+function joystickHandler(j, downmap, upcase){
+  var interval = setInterval(function(){
+    var res = {'up': j.up(), 'right': j.right(), 'down': j.down(), 'left': j.left()};
+    for (var r in res)
+      if (res[r]) {
+        downmap[r]();
+        return;
+      }    
+    upcase();
+  },50);
+
+  this.disable = function(){
+    clearInterval(interval);
+  }
+}
+
 function KeyBoardHandler(element, keymapdown, keymapup){
   var elements = {};
   var buffer = [];

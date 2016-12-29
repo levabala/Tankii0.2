@@ -6,6 +6,7 @@ svg.append(container);
 initWebRtc();
 
 var tanksroom;
+var mytank;
 var keymapdown1 = function(tank){
   return {
     38: function(){
@@ -41,24 +42,26 @@ var keymapup1 = function(tank){
     }
   }
 }
+var joystickmap1 = function(tank){
+  return{
+    'up': tank.toTop,
+    'right': tank.toRight,
+    'down': tank.toBottom,
+    'left': tank.toLeft,
+  }
+}
 
 function initTanksRoomServer(){
 
-  var map1 = new Map(170,100);
+  var map1 = new Map(30,20);
   map1.fitToContainer(svg.width(), svg.height())
-  //svg.append(map1.generateMesh())
+  svg.append(map1.generateMesh())
 
   tanksroom = new TanksRoom(map1,container);
-  tanksroom.appendObject(new Wall(new Pos(60,40), map1, 20, 30, 10, true, null, null, tanksroom.removeObject))
+  tanksroom.appendObject(new Wall(new Pos(10,10), map1, 10, 5, 10, true, null, null, tanksroom.removeObject))
 
-  var justTank = new Tank(new Pos(10,10), map1, 7, 7, 5, true, [0,1,0,0], 0.2, tanksroom.removeObject, tanksroom.appendObject)
+  restartMyTank();
 
-  var kd1 = keymapdown1(justTank);
-  var ku1 = keymapup1(justTank);
-  var k1 = new KeyBoardHandler(window, kd1, ku1);
-  justTank.setCommandsHandler(k1)
-
-  tanksroom.appendObject(justTank);
   tanksroom.appendObjectHandler = function(obj){
     var snap = obj.createSnap();
     snap.constructorName = obj.constructor.name
@@ -71,12 +74,33 @@ function initTanksRoomServer(){
       peers[activePeers[p]].sendDataChannel.send(JSON.stringify({type: 'changes', value: tanksroom.changedObjects}))
     tanksroom.AcceptChanges();
   },16);
+
+  window.onkeyup = function(e){
+    if (e.keyCode == 82)
+    restartMyTank();
+  }
+
+  function restartMyTank(){
+    if (mytank) mytank.destructSelf();
+    var justTank = new Tank(new Pos(5,5), map1, 3, 3, 5, true, [0,1,0,0], 0.05, tanksroom.removeObject, tanksroom.appendObject)
+    mytank = justTank;
+
+    var kd1 = keymapdown1(justTank);
+    var ku1 = keymapup1(justTank);
+    var jmap1 = joystickmap1(justTank);
+    var k1 = new KeyBoardHandler(window, kd1, ku1);
+    var j1 = new joystickHandler(joystick,jmap1,justTank.stop)
+    justTank.setCommandsHandler(k1)
+    justTank.setCommandsHandler(j1)
+
+    tanksroom.appendObject(justTank);
+  }
 }
 
 function AcceptClient(peer){
   peer.sendDataChannel.send(JSON.stringify({type: 'roomSnap', value: tanksroom.createShap()}))
 
-  var clientTank = new Tank(new Pos(20,20), tanksroom.map, 7, 7, 5, true, [0,1,0,0], 0.1, tanksroom.removeObject, tanksroom.appendObject)
+  var clientTank = new Tank(new Pos(25,15), tanksroom.map, 3, 3, 5, true, [0,1,0,0], 0.02, tanksroom.removeObject, tanksroom.appendObject)
   var commandsMap = {
     'toLeft': function(){
       clientTank.toLeft();
@@ -141,9 +165,8 @@ function initTanksRoomClient(){
       for (var c in changes){
         var cc = changes[c];
         if (cc.pos) cc.pos = new Pos(cc.pos.X, cc .pos.Y)
-        //console.log(changes[c])
-        tanksroom.objects[c].setProperties(changes[c])
-      }      
+        if (tanksroom.objects[c]) tanksroom.objects[c].setProperties(changes[c])
+      }
       lastTime = performance.now();
     },
     'yourTankCreated': function(id){
@@ -155,6 +178,9 @@ function initTanksRoomClient(){
       gameobj.id = obj.id;
       tanksroom.setObject(gameobj.id, gameobj)
     },
+    /*'removeObject': function(id){
+      if (typeof tanksroom.objects[id] != 'undefined') tanksroom.removeObject(tanksroom.objects[id]);
+    }*/
     'notification': function(notify){
       console.log('notification:',notify)
     }
@@ -191,8 +217,15 @@ function initTanksRoomClient(){
       send('shoot');
     }
   }
+  var joystickmap1 = {
+    'up': function(){send('toTop')},
+    'right': function(){send('toRight')},
+    'down': function(){send('toBottom')},
+    'left': function(){send('toLeft')}
+  }
 
   var k1 = new KeyBoardHandler(window, keymapdown1, keymapup1)
+  var j1 = new joystickHandler(joystick,joystickmap1,function(){send('stop')})
 
   HostPeer.peerConnection.addEventListener('datachannel', function(){
     HostPeer.recevingDataChannel.onmessage = function(e){
@@ -200,6 +233,12 @@ function initTanksRoomClient(){
       messagesMap[mee.type](mee.value)
     }
   });
+
+  mytank = {
+    shoot: function(){
+      send('shoot')
+    }
+  }
 
   function send(comm){
     HostPeer.sendDataChannel.send(JSON.stringify({type: 'command', value:comm}));

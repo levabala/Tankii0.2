@@ -2,6 +2,7 @@ function BuildTanksRoomFromSnap(snap,container){
   var map = new Map(snap.map.width,snap.map.height);
   map.fitToContainer(svg.width(), svg.height())
   var tanksroom = new TanksRoom(map,container);
+  tanksroom.stopGameLoop();
   for (var constr in snap.objects)
     for (var o in snap.objects[constr]){
       var objSnap = snap.objects[constr][o];
@@ -65,8 +66,11 @@ function TanksRoom(map,jqcontainer){
   }
 
   this.removeObject = function(obj){
+    obj.hp = 0;
+    tr.changedObjects[obj.id] = {hp: 0}
     obj.svgBody.remove()
     delete tr.objects[obj.id];
+    delete obj;
 
     for (var dx = 0; dx < obj.width; dx++)
       for (var dy = 0; dy < obj.height; dy++)
@@ -98,9 +102,15 @@ function TanksRoom(map,jqcontainer){
   var gameInterval = setInterval(function(){
     for (var o in tr.objects){
       var obj = tr.objects[o];
-      if (obj.tick()) tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
+      if (obj.tick()) {
+        tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
+      }
     }
   }, 1);
+
+  this.stopGameLoop = function(){
+    clearInterval(gameInterval)
+  }
 
   this.AcceptChanges = function(){
     tr.changedObjects = {};
@@ -109,7 +119,7 @@ function TanksRoom(map,jqcontainer){
   //svg refresh loop
   setInterval(function(){
     $(jqcontainer).hide().show(0);
-  },16);
+  },500);
 
   this.createShap = function(){
     var snaps = {objects: {}, map: {}};
@@ -135,39 +145,48 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   this.map = map;
   this.width = width;
   this.height = height;
-  this.rotation = rotation; // example: [1,0,0,0]  common view: [top,right,bottom,left]
+  this.rotation = rotation || [0,0,0,0]; // example: [1,0,0,0]  common view: [top,right,bottom,left]
   this.speed = speed;
   this.physical = physical; //is it an obstance or not
   this.svgBody = null;
   this.id = null;
   this.hp = hp;
   this.maxhp = hp;
+  this.wasDamaged = false;
 
   //external access
   this.destructSelfFun = destructSelfFun;
   this.createObjectFun = createObjectFun;
-  this.commandsHandler = null;
+  this.commandsHandlers = [];
 
   //object's doings
   this.tick = function(){
-
+    var changed = gobj.wasDamaged;
+    if (changed) console.warn('TRUE')
+    gobj.wasDamaged = false;
+    if (changed) console.warn(changed)
+    return changed;
   }
 
   this.damaged = function(damage){
     if (gobj.deathless) return;
 
     gobj.hp -= damage;
-    console.log(gobj.hp)
     if (gobj.hp < 1)
       gobj.destructSelf();
 
     gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
+    gobj.wasDamaged = true;
+    console.log('damaged')
   }
 
   this.destructSelf = function(){
-    gobj.svgBody.setAttributeNS(null,'width','0');
-    gobj.svgBody.setAttributeNS(null,'height','0');
+    //gobj.svgBody.setAttributeNS(null,'width','0');
+    //gobj.svgBody.setAttributeNS(null,'height','0');
     gobj.destructSelfFun(gobj);
+
+    for (var ch in gobj.commandsHandlers)
+      gobj.commandsHandlers[ch].disable();
   }
 
   this.createObject = function(obj){
@@ -197,6 +216,12 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   }
 
   this.setProperties = function(props){
+    console.log(props.hp)
+    if (props.hp < 1) {
+      console.warn('destructing!')
+      gobj.destructSelf()
+      return;
+    }
     for (var p in props){
       gobj[p] = props[p]
     }
@@ -206,6 +231,7 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   this.updateSvgBody = function(){
     var r = gobj.rotation[0] * 180 + gobj.rotation[1] * 270 + gobj.rotation[3] * 90;
     gobj.svgBody.setAttributeNS(null,'transform', 'translate(' + (gobj.pos.X) + ',' + (gobj.pos.Y) + ') rotate(' + r + ',' + gobj.width/2 + ',' + gobj.height/2 + ')');
+    gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
   }
 }
 
@@ -270,10 +296,12 @@ function MovableGameObject(){
     var lastR = mgobj.rotation;
     mgobj.IWantToDoSmth();
     changed = changed || lastR != mgobj.rotation
+    changed = changed || mgobj.wasDamaged
 
     move();
 
     if (changed) mgobj.updateSvgBody();
+    mgobj.wasDamaged = false;
     return changed;
   }
 
@@ -334,7 +362,7 @@ function MovableGameObject(){
   }
 
   this.setCommandsHandler = function(ch){
-    mgobj.commandsHandler = ch;
+    mgobj.commandsHandlers.push(ch);
   }
 
   function initWaitingToRotate(rotation){
