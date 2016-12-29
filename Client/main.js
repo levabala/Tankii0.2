@@ -145,7 +145,7 @@ function initTanksRoomClient(){
   var lastTime = 0;
   var waitTimeLimit = 500;
   var crazyWaitTimeCombo = 0;
-  var crazyWaitTimeComboLimit = 3;
+  var crazyWaitTimeComboLimit = 1;
 
   var messagesMap = {
     'roomSnap': function(snap){
