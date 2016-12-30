@@ -30,9 +30,8 @@ function Tank(){
 
   this.shoot = function(){
     var x = tank.pos.X+tank.rotation[3]*-1+tank.rotation[1]*tank.width+(1-(tank.rotation[1]+tank.rotation[3]))*Math.floor(tank.width/2);
-    var y = tank.pos.Y+tank.rotation[0]*-1+tank.rotation[2]*tank.height+(1-(tank.rotation[0]+tank.rotation[2]))*Math.floor(tank.height/2);
-    console.log('tank:',tank)
-    var shell = new Shell(new Pos(x, y), tank.map, 1, 1, 1, 1, tank.rotation, 0.4, tank.destructSelfFun);
+    var y = tank.pos.Y+tank.rotation[0]*-1+tank.rotation[2]*tank.height+(1-(tank.rotation[0]+tank.rotation[2]))*Math.floor(tank.height/2);    
+    var shell = new Shell(new Pos(x, y), tank.map, 1, 1, 1, 1, tank.rotation, 0.2, tank.destructSelfFun);
     shell.moveOn = 1;
     tank.createObject(shell);
   }

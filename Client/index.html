@@ -1,12 +1,16 @@
 <html>
 <head>
   <meta charset="utf-8"/>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport'/>
+  <meta name="mobile-web-app-capable" content="yes"/>
   <script src="ExternalLibs/adapter.js"></script>
   <script src="ExternalLibs/jquery.js"></script>
   <script src="ExternalLibs/joystick.js"></script>
   <script src="ExternalLibs/socket.io.js"></script>
   <script src="Classes/common.js"></script>
   <script src="Classes/Map.js"></script>
+  <script src="Classes/GameObjects/GameObject.js"></script>
+  <script src="Classes/GameObjects/MovableGameObject.js"></script>
   <script src="Classes/GameObjects/Shell.js"></script>
   <script src="Classes/GameObjects/Tank.js"></script>
   <script src="Classes/GameObjects/Wall.js"></script>
@@ -71,8 +75,8 @@
     .button {
       display: inline-block;
       margin: 40px;
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       background: rgba(0,0,0,0.50);
       cursor: pointer;
       border-radius: 50%;
@@ -154,6 +158,11 @@
   </style>
 </head>
 <body>
+  <div id='ServersList'>
+    <ul class="beads" id='ServerListUl'>
+      <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
+    </ul>
+  </div>
   <div id='TotalDiv' style='position: absolute; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
     <h3>Tanks 1990</h3>
     <div id="myModal" class="modal">
@@ -169,14 +178,7 @@
       </svg>
     </div>
   </div>
-  <div id='ServersList'>
-    <ul class="beads" id='ServerListUl'>
-      <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
-    </ul>
-  </div>
-  <div id='ShootButton' ontouchstart='if (mytank) mytank.shoot()' class='button' style='position: absolute; right: 60px; bottom: 60px'>
-
-  </div>
+  <div id='ShootButton' ontouchstart='if (mytank) mytank.shoot()' class='button' style='position: absolute; right: 1%; bottom: 1%'/>
   <script>
     //interface script
     var menuOn = false;
@@ -188,6 +190,10 @@
     });
 
     $('#ServersList')[0].onmousedown = function(e){
+      e.stopPropagation();
+    }
+
+    $('#ToggleButton')[0].onmousedown = function(e){
       e.stopPropagation();
     }
 
@@ -216,13 +222,7 @@
       modal.style.display = "none";
     }
 
-    /*
-    window.onclick = function(event) {
-        if (event.target == modal)
-          HideModal()
-    }*/
-
-    var joystick = new VirtualJoystick({container: $('#TotalDiv')[0], mouseSupport: true})
+    var joystick = new VirtualJoystick({container: $('#TotalDiv')[0]})
     joystick.addEventListener('touchStart', function(){
       console.log('down')
     })
@@ -232,7 +232,7 @@
     joystick.addEventListener('right', function(){
       console.log('right')
     })
-    console.log(joystick)
+
 
   </script>
 

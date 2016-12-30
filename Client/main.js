@@ -52,10 +52,9 @@ var joystickmap1 = function(tank){
 }
 
 function initTanksRoomServer(){
-
   var map1 = new Map(30,20);
   map1.fitToContainer(svg.width(), svg.height())
-  svg.append(map1.generateMesh())
+  //svg.append(map1.generateMesh())
 
   tanksroom = new TanksRoom(map1,container);
   tanksroom.appendObject(new Wall(new Pos(10,10), map1, 10, 5, 10, true, null, null, tanksroom.removeObject))
@@ -72,6 +71,9 @@ function initTanksRoomServer(){
   var GameSharingInterval = setInterval(function(){
     for (var p in activePeers)
       peers[activePeers[p]].sendDataChannel.send(JSON.stringify({type: 'changes', value: tanksroom.changedObjects}))
+    if (tanksroom.removedObjects.length > 0)
+      for (var p in activePeers)
+        peers[activePeers[p]].sendDataChannel.send(JSON.stringify({type: 'removings', value: tanksroom.removedObjects}))
     tanksroom.AcceptChanges();
   },16);
 
@@ -100,7 +102,7 @@ function initTanksRoomServer(){
 function AcceptClient(peer){
   peer.sendDataChannel.send(JSON.stringify({type: 'roomSnap', value: tanksroom.createShap()}))
 
-  var clientTank = new Tank(new Pos(25,15), tanksroom.map, 3, 3, 5, true, [0,1,0,0], 0.02, tanksroom.removeObject, tanksroom.appendObject)
+  var clientTank = new Tank(new Pos(25,15), tanksroom.map, 3, 3, 5, true, [0,1,0,0], 0.04, tanksroom.removeObject, tanksroom.appendObject)
   var commandsMap = {
     'toLeft': function(){
       clientTank.toLeft();
@@ -168,6 +170,10 @@ function initTanksRoomClient(){
         if (tanksroom.objects[c]) tanksroom.objects[c].setProperties(changes[c])
       }
       lastTime = performance.now();
+    },
+    'removings': function(arr){
+      for (var a in arr)
+        tanksroom.removeObject(tanksroom.objects[arr[a]]);
     },
     'yourTankCreated': function(id){
       console.log('Yeeah! Now I have a tank!')

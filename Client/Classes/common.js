@@ -31,14 +31,19 @@ function setAttr(obj,attr,value){
 }
 
 function joystickHandler(j, downmap, upcase){
+  var upped = true;
   var interval = setInterval(function(){
     var res = {'up': j.up(), 'right': j.right(), 'down': j.down(), 'left': j.left()};
     for (var r in res)
       if (res[r]) {
         downmap[r]();
+        upped = false;
         return;
-      }    
-    upcase();
+      }
+    if (!upped) {
+      upcase();
+      upped = true;
+    }
   },50);
 
   this.disable = function(){

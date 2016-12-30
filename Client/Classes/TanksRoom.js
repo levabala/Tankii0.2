@@ -1,19 +1,3 @@
-function BuildTanksRoomFromSnap(snap,container){
-  var map = new Map(snap.map.width,snap.map.height);
-  map.fitToContainer(svg.width(), svg.height())
-  var tanksroom = new TanksRoom(map,container);
-  tanksroom.stopGameLoop();
-  for (var constr in snap.objects)
-    for (var o in snap.objects[constr]){
-      var objSnap = snap.objects[constr][o];
-      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
-      gameObj.id = objSnap.id;
-      tanksroom.setObject(gameObj.id, gameObj)
-      //pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createObjectFun
-    }
-  return tanksroom
-}
-
 function TanksRoom(map,jqcontainer){
   var tr = this;
   this.map = map;
@@ -29,6 +13,7 @@ function TanksRoom(map,jqcontainer){
   //operations with objects
   var counter = 0;
   this.appendObject = function(obj){
+    console.log('append:',obj.id)
     obj.id = counter;
     tr.objects[counter] = obj;
     jqcontainer.append(obj.svgBody);
@@ -40,6 +25,7 @@ function TanksRoom(map,jqcontainer){
 
     counter++;
     tr.appendObjectHandler(obj);
+    console.log(tr.objects)
     return obj.id;
   }
 
@@ -66,15 +52,17 @@ function TanksRoom(map,jqcontainer){
   }
 
   this.removeObject = function(obj){
+    console.log(obj.id,'removed')
     obj.hp = 0;
-    tr.changedObjects[obj.id] = {hp: 0}
     obj.svgBody.remove()
-    delete tr.objects[obj.id];
-    delete obj;
+    tr.removedObjects.push(obj.id)
 
     for (var dx = 0; dx < obj.width; dx++)
       for (var dy = 0; dy < obj.height; dy++)
-        tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = {isobstacle: false};
+        tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = {physical: false, id: '|'};
+
+    delete tr.objects[obj.id];
+    delete obj;
   }
 
   //background
@@ -99,12 +87,12 @@ function TanksRoom(map,jqcontainer){
 
   //game loop
   this.changedObjects = {};
+  this.removedObjects = [];
   var gameInterval = setInterval(function(){
     for (var o in tr.objects){
       var obj = tr.objects[o];
-      if (obj.tick()) {
+      if (obj.tick())
         tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
-      }
     }
   }, 1);
 
@@ -114,12 +102,14 @@ function TanksRoom(map,jqcontainer){
 
   this.AcceptChanges = function(){
     tr.changedObjects = {};
+    tr.removedObjects = [];
   }
 
   //svg refresh loop
-  setInterval(function(){
-    $(jqcontainer).hide().show(0);
-  },500);
+  if (screen.width > 900)
+    setInterval(function(){
+      $(jqcontainer).hide().show(0);
+    },500);
 
   this.createShap = function(){
     var snaps = {objects: {}, map: {}};
@@ -136,262 +126,18 @@ function TanksRoom(map,jqcontainer){
   }
 }
 
-function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelfFun,createObjectFun){
-  var gobj = this;
-
-  //base props
-  this.pos = pos;
-  this.cellP = new Pos(Math.floor(pos.X), Math.floor(pos.Y));
-  this.map = map;
-  this.width = width;
-  this.height = height;
-  this.rotation = rotation || [0,0,0,0]; // example: [1,0,0,0]  common view: [top,right,bottom,left]
-  this.speed = speed;
-  this.physical = physical; //is it an obstance or not
-  this.svgBody = null;
-  this.id = null;
-  this.hp = hp;
-  this.maxhp = hp;
-  this.wasDamaged = false;
-
-  //external access
-  this.destructSelfFun = destructSelfFun;
-  this.createObjectFun = createObjectFun;
-  this.commandsHandlers = [];
-
-  //object's doings
-  this.tick = function(){
-    var changed = gobj.wasDamaged;
-    if (changed) console.warn('TRUE')
-    gobj.wasDamaged = false;
-    if (changed) console.warn(changed)
-    return changed;
-  }
-
-  this.damaged = function(damage){
-    if (gobj.deathless) return;
-
-    gobj.hp -= damage;
-    if (gobj.hp < 1)
-      gobj.destructSelf();
-
-    gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
-    gobj.wasDamaged = true;
-    console.log('damaged')
-  }
-
-  this.destructSelf = function(){
-    //gobj.svgBody.setAttributeNS(null,'width','0');
-    //gobj.svgBody.setAttributeNS(null,'height','0');
-    gobj.destructSelfFun(gobj);
-
-    for (var ch in gobj.commandsHandlers)
-      gobj.commandsHandlers[ch].disable();
-  }
-
-  this.createObject = function(obj){
-    gobj.createObjectFun(obj);
-  }
-
-  //generate and set "body" tag
-  this.createBaseBody = function(obj){
-    var r = (obj.rotation) ? obj.rotation[0] * 180 + obj.rotation[1] * 270 + obj.rotation[3] * 90 : 0;
-    obj.svgBody = document.createElementNS("http://www.w3.org/2000/svg",'g');
-    setAttr(obj.svgBody, 'transform', 'translate(' + obj.pos.X + ',' + obj.pos.Y  + ') rotate(' + r + ',' + obj.width/2 + ',' + obj.height/2 + ')');
-    setAttr(obj.svgBody, 'width', obj.width);
-    setAttr(obj.svgBody, 'height', obj.height);
-  }
-
-  //additional view elements
-  this.generateView = function(obj){
-
-  }
-
-  //base view generation
-  this.createBaseBody(this);
-
-  //span for recreating
-  this.createSnap = function(){
-    return {id: gobj.id, pos: gobj.pos, width: gobj.width, height: gobj.height, hp: gobj.hp, physical: gobj.physical, rotation: gobj.rotation, speed: gobj.speed};
-  }
-
-  this.setProperties = function(props){
-    console.log(props.hp)
-    if (props.hp < 1) {
-      console.warn('destructing!')
-      gobj.destructSelf()
-      return;
+function BuildTanksRoomFromSnap(snap,container){
+  var map = new Map(snap.map.width,snap.map.height);
+  map.fitToContainer(svg.width(), svg.height())
+  var tanksroom = new TanksRoom(map,container);
+  tanksroom.stopGameLoop();
+  for (var constr in snap.objects)
+    for (var o in snap.objects[constr]){
+      var objSnap = snap.objects[constr][o];
+      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
+      gameObj.id = objSnap.id;
+      tanksroom.setObject(gameObj.id, gameObj)
+      //pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createObjectFun
     }
-    for (var p in props){
-      gobj[p] = props[p]
-    }
-    gobj.updateSvgBody();
-  }
-
-  this.updateSvgBody = function(){
-    var r = gobj.rotation[0] * 180 + gobj.rotation[1] * 270 + gobj.rotation[3] * 90;
-    gobj.svgBody.setAttributeNS(null,'transform', 'translate(' + (gobj.pos.X) + ',' + (gobj.pos.Y) + ') rotate(' + r + ',' + gobj.width/2 + ',' + gobj.height/2 + ')');
-    gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
-  }
-}
-
-function MovableGameObject(){
-  //inheriting
-  GameObject.apply(this,arguments);
-  var mgobj = this;
-
-  //things to do when tick() occur
-  this.IWantToDoSmth = function(){
-    return false;
-  };
-
-  //is it moving now (triggered)
-  this.moveOn = 0;
-
-  //collision functions
-  var checkCollisionFuns = {
-    //key is rotation.indexOf(1), so 0 = top, 1 = right, 2 = bottom, 3 = left, -1 = invalid rotation.
-    //results:
-    //"false" - all is okay
-    //else - return object with which the collision occurred
-    0: function(){
-      for (var x = 0; x < mgobj.width; x++)
-        if (mgobj.map.field[mgobj.cellP.X+x][mgobj.cellP.Y-1].obj.physical) return mgobj.map.field[mgobj.cellP.X+x][mgobj.cellP.Y-1].obj;
-      return false;
-    },
-    1: function(){
-      for (var y = 0; y < mgobj.height; y++)
-        if (mgobj.map.field[mgobj.cellP.X+mgobj.width][mgobj.cellP.Y+y].obj.physical) return mgobj.map.field[mgobj.cellP.X+mgobj.width][mgobj.cellP.Y+y].obj;
-      return false;
-    },
-    2: function(){
-      for (var x = 0; x < mgobj.width; x++)
-        if (mgobj.map.field[mgobj.cellP.X+x][mgobj.cellP.Y+mgobj.height].obj.physical) return mgobj.map.field[mgobj.cellP.X+x][mgobj.cellP.Y+mgobj.height+1].obj;
-      return false;
-    },
-    3: function(){
-      for (var y = 0; y < mgobj.height; y++)
-        if (mgobj.map.field[mgobj.cellP.X-1][mgobj.cellP.Y+y].obj.physical) return mgobj.map.field[mgobj.cellP.X-1][mgobj.cellP.Y+y].obj;
-      return false;
-    },
-    '-1': function(){
-      return false;
-    }
-  }
-
-  //additional action
-  this.collisionCaseAction = function(obj){
-
-  }
-
-  //overriting
-  this.tick = function(){
-    var collResult = checkCollisionFuns[mgobj.rotation.indexOf(1)]();
-    if (collResult) {
-      mgobj.stop();
-      mgobj.collisionCaseAction(collResult);
-    }
-    var changed = mgobj.moveOn;
-
-    var lastR = mgobj.rotation;
-    mgobj.IWantToDoSmth();
-    changed = changed || lastR != mgobj.rotation
-    changed = changed || mgobj.wasDamaged
-
-    move();
-
-    if (changed) mgobj.updateSvgBody();
-    mgobj.wasDamaged = false;
-    return changed;
-  }
-
-  this.isVeryNear = function(){
-    return ((mgobj.pos.X - Math.floor(mgobj.pos.X) <= mgobj.speed*1.1 || Math.ceil(mgobj.pos.X) - mgobj.pos.X <= mgobj.speed*1.1) && (mgobj.pos.Y - Math.floor(mgobj.pos.Y) <= mgobj.speed*1.1 || Math.ceil(mgobj.pos.Y) - mgobj.pos.Y <= mgobj.speed*1.1))
-  }
-
-  function rotate(newRotation){
-    mgobj.rotation = newRotation;
-  }
-
-  function move(){
-    mgobj.pos.X += (mgobj.rotation[1] * mgobj.speed - mgobj.rotation[3] * mgobj.speed) * mgobj.moveOn;
-    mgobj.pos.Y += (mgobj.rotation[2] * mgobj.speed - mgobj.rotation[0] * mgobj.speed) * mgobj.moveOn;
-    var newcellP = new Pos((mgobj.pos.X - Math.floor(mgobj.pos.X) < Math.ceil(mgobj.pos.X) - mgobj.pos.X) ? Math.floor(mgobj.pos.X) : Math.ceil(mgobj.pos.X), ((mgobj.pos.Y - Math.floor(mgobj.pos.Y) < Math.ceil(mgobj.pos.Y) - mgobj.pos.Y)) ? Math.floor(mgobj.pos.Y) : Math.ceil(mgobj.pos.Y));
-    if (!mgobj.cellP.compareWith(newcellP)){
-      updatemapPosition(mgobj.cellP, newcellP)
-      mgobj.cellP = newcellP;
-    }
-  }
-
-  //<editor-fold> External commands
-  this.toTop = function(){
-    initWaitingToRotate([1,0,0,0])
-  }
-
-  this.toRight = function(){
-    initWaitingToRotate([0,1,0,0])
-  }
-
-  this.toBottom = function(){
-    initWaitingToRotate([0,0,1,0])
-  }
-
-  this.toLeft = function(){
-    initWaitingToRotate([0,0,0,1])
-  }
-
-  this.stop = function(){
-    if (mgobj.moveOn == 0) return;
-    //mgobj.stopping = true;
-    mgobj.IWantToDoSmth = function(){
-      if (mgobj.isVeryNear()){
-        mgobj.pos = new Pos((mgobj.pos.X - Math.floor(mgobj.pos.X) < Math.ceil(mgobj.pos.X) - mgobj.pos.X) ? Math.floor(mgobj.pos.X) : Math.ceil(mgobj.pos.X), ((mgobj.pos.Y - Math.floor(mgobj.pos.Y) < Math.ceil(mgobj.pos.Y) - mgobj.pos.Y)) ? Math.floor(mgobj.pos.Y) : Math.ceil(mgobj.pos.Y));
-        mgobj.moveOn = 0;
-        mgobj.IWantToDoSmth = function(){};
-      }
-    }
-  }
-
-  //external commands
-  this.commands = {
-    'toLeft': mgobj.toLeft,
-    'toRight': mgobj.toRight,
-    'toTop': mgobj.toTop,
-    'toBottom': mgobj.toBottom,
-    'toStop': mgobj.toStop
-  }
-
-  this.setCommandsHandler = function(ch){
-    mgobj.commandsHandlers.push(ch);
-  }
-
-  function initWaitingToRotate(rotation){
-    if (mgobj.rotation == rotation) return;
-    if (!checkCollisionFuns[rotation.indexOf(1)]())
-      mgobj.IWantToDoSmth = function(){
-        if (mgobj.isVeryNear()){
-          mgobj.rotation = rotation
-          mgobj.moveOn = 1;
-          mgobj.IWantToDoSmth = function(){};
-        }
-      }
-    else
-      mgobj.IWantToDoSmth = function(){
-        if (mgobj.isVeryNear()){
-          mgobj.rotation = rotation
-          mgobj.IWantToDoSmth = function(){};
-        }
-      }
-  }
-  //</editor-fold>
-
-  function updatemapPosition(oldP, newP){
-    for (var dx = 0; dx < mgobj.width; dx++)
-      for (var dy = 0; dy < mgobj.height; dy++)
-        mgobj.map.field[oldP.X + dx][oldP.Y + dy].obj = {physical: false};
-
-    for (var dx = 0; dx < mgobj.width; dx++)
-      for (var dy = 0; dy < mgobj.height; dy++)
-        mgobj.map.field[newP.X + dx][newP.Y + dy].obj = mgobj;
-  }
+  return tanksroom
 }
