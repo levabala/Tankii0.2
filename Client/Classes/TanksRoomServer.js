@@ -8,11 +8,6 @@ function TanksRoomServer(){
     Green: new Team('Green', 'green')
   };
 
-  setInterval(function(){
-    console.log('----')
-    for (var t in tr.teams)
-      console.log('\t',t,tr.teams[t].totalKills,tr.teams[t].totalDeaths,tr.teams[t].playersCount)
-  },1000)
 
   this.addToTeam = function(player,teamName){
     var team;

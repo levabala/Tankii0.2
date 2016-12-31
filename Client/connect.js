@@ -28,7 +28,6 @@ function getParameterByName(name, url) {
   if (!results[2]) return null;
   return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
-
 function disconnect(){
   if (tanksroom) tanksroom.destructThemAll();
   HostPeer = null;
@@ -84,7 +83,7 @@ function initWebRtc() {
     isServer = true;
     signaling_socket.emit('getServers');
     console.warn('Now I am a HOST')
-    $('#Header')[0].innerHTML = 'Room: ' + DEFAULT_ROOM + '(my)'
+    $('#Header')[0].innerHTML = 'Room: ' + DEFAULT_ROOM
 
     //room object
     room = {
@@ -92,7 +91,6 @@ function initWebRtc() {
       teams: []
     }
   });
-
   signaling_socket.on('JoinedToTheRoom', function(config){
     console.warn('I have joined to the room. HostId:',config.hostId)
     HostId = config.hostId
@@ -101,6 +99,7 @@ function initWebRtc() {
 
   signaling_socket.on('RoomClosed', function(){
     console.warn('We are sorry, but host has left the room')
+	document.location.href = "http://62.84.111.201:3030";
   });
 
   function HostFounded(obj){
@@ -108,8 +107,8 @@ function initWebRtc() {
     console.warn('Host Founded:', HostPeer)
     obj.sendDataChannel.onopen = initTanksRoomClient;
   }
-
   signaling_socket.on('addPeer', function(config) {
+	  
       //console.log('Signaling server said to add peerConnection:', config);
       var peer_id = config.peer_id;
       if (peer_id in peers) {
@@ -260,6 +259,7 @@ function initWebRtc() {
        if (peers[peer_id].linkedTank) peers[peer_id].linkedTank.destructSelf();
        else console.warn('Какая жалость.. Он даже не успел танком обзавестись :(')
      }
+	 
      delete peers[peer_id];
  });
 }

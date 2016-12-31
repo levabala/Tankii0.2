@@ -45,66 +45,47 @@ for(var i in tanksroom.objects) {
 var enemypos;
 if(typeof tanksroom.objects[idminfar] != "undefined"){
 	enemypos = tanksroom.objects[idminfar].pos;
-if(minfar >100){
-	if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
-		if(tank.pos.X<enemypos.X){
-			tank.toLeft();
-
-		}
-		if(tank.pos.X>enemypos.X){
-			tank.toRight();
-
-		}
-	}else{
-		if(tank.pos.Y>enemypos.Y){
-			tank.toTop();
-
-		}
-		if(tank.pos.Y<enemypos.Y){
-			tank.toBottom();
-
-		}
-	}
-}else if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
-	if(tank.pos.X>enemypos.X+1){
-		tank.toLeft();
+													//В КОММЕНТАРИЯХ ИСПОЛЬЗУЮ СИСТЕМУ ОСЕЙ ПРИВЯЗАННУЮ К ВРАГУ
+if(Math.abs(tank.pos.X-enemypos.X)<=Math.abs(tank.pos.Y-enemypos.Y)){//Если ось Y ближе, чем ось X
+	if(tank.pos.X>enemypos.X+1){//если мы правее противника
+		tank.toLeft();//едем влево
 
 	}
-	if(tank.pos.X<enemypos.X-1){
-		tank.toRight();
-
-	}else{
-		if(tank.pos.Y<enemypos.Y-1){
-			tank.toBottom();
+	if(tank.pos.X<enemypos.X-1){//если мы левее противника
+		tank.toRight();//едем вправо
+	}else{//если мы на одной линии с противником
+		if(tank.pos.Y<enemypos.Y){//если противник ниже нас
+			tank.toBottom();//разворачиваемся назад
 			tank.stop();
 			var schance = Math.random();
-			if (schance > 0.985) tank.shoot();
-		}else{
-			tank.toTop();
+			if (schance > 0.985) tank.shoot();//Где напалм, Джонни!?*/
+		}
+		if(tank.pos.Y>enemypos.Y){//если противник выше нас
+			tank.toTop();//разворачиваемся вверх
 			tank.stop();
-			var schance = Math.random();
-			if (schance > 0.985) tank.shoot();
+			//var schance = Math.random();
+			//if (schance > 0.985) tank.shoot();//Где напалм, Джонни!?
 		}
 	}
-}else{
-	if(tank.pos.Y>enemypos.Y+1){
-		tank.toTop();
+}
+if(Math.abs(tank.pos.X-enemypos.X)>Math.abs(tank.pos.Y-enemypos.Y)){//если ось X ближе к нам
+	if(tank.pos.Y>enemypos.Y+1){//если ось X выше нас
+		tank.toTop();//едем вверх
 
 	}
-	if(tank.pos.Y<enemypos.Y-1){
-		tank.toBottom();
-
-	}else{
-		if(tank.pos.X<enemypos.X-1){
-			tank.toRight();
+	if(tank.pos.Y<enemypos.Y-1){//если ось X ниже нас
+		tank.toBottom();//едем вниз
+	}else{//если мы на оси X
+		if(tank.pos.X<enemypos.X){//если враг правее нас
+			tank.toRight(); //разворачиваемся направо
 			tank.stop();
 			var schance = Math.random();
-			if (schance > 0.985) tank.shoot();
-		}else{
-			tank.toLeft();
+			if (schance > 0.985) tank.shoot();//Где напалм, Джонни!?
+		}else{//если враг левее нас
+			tank.toLeft();//разворачиваемся налево
 			tank.stop();
 			var schance = Math.random();
-			if (schance > 0.985) tank.shoot();
+			if (schance > 0.985) tank.shoot();//Где напалм, Джонни!?
 		}
 	}
 }}else{tank.stop();}
