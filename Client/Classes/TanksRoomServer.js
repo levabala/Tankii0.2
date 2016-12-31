@@ -97,6 +97,8 @@ function TanksRoomServer(){
         tr.restartHostTank();
         break;
       case 66:
+		if(Math.random()>0.5)tr.addBots(1, 'RandomBot');
+		else tr.addBots(1, 'SuicideBot');
         break;
     }
   }
@@ -184,6 +186,8 @@ function initTanksRoomServer(){
 
   tanksroom.enableMapDrawing();
   tanksroom.restartHostTank();
+	if(Math.random()>0.5)tanksroom.addBots(2, 'RandomBot');
+	else tanksroom.addBots(2, 'SuicideBot');
 }
 
 function AcceptClient(peer){
