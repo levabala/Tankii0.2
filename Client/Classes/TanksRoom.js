@@ -13,7 +13,10 @@ function TanksRoom(map,jqcontainer){
   //operations with objects
   var counter = 0;
   this.appendObject = function(obj){
-    console.log('append:',obj.id)
+    obj.svgBody.ondblclick = function(){
+        obj.destructSelf();
+    }
+
     obj.id = counter;
     tr.objects[counter] = obj;
     jqcontainer.append(obj.svgBody);
