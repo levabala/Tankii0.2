@@ -1,38 +1,26 @@
 var os = require('os');
+var PORT = 3030;
 var nodeStatic = require('node-static');
 var express = require('express')
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
+var countplayers = 0;
 app.get('/', function(req, res){
   res.sendfile(__dirname + '/Client/index.html');
 });
 
 app.use('/', express.static(__dirname + '/Client'))
 
-http.listen(3030, function(){
-  console.log('listening on *:3030');
+http.listen(PORT, function(){
+  console.log('listening on *:' + PORT);
 });
 
 
-/*************************/
-/*** INTERESTING STUFF ***/
-/*************************/
 var channels = {};
 var creators = {};
 var sockets = {};
 
-/**
- * Users will connect to the signaling server, after which they'll issue a "join"
- * to join a particular channel. The signaling server keeps track of all sockets
- * who are in a channel, and on join will send out 'addPeer' events to each pair
- * of users in a channel. When clients receive the 'addPeer' even they'll begin
- * setting up an RTCPeerConnection with one another. During this process they'll
- * need to relay ICECandidate information to one another, as well as SessionDescription
- * information. After all of that happens, they'll finally be able to complete
- * the peer connection and will be streaming audio/video between eachother.
- */
 io.sockets.on('connection', function (socket) {
     console.log(channels)
     socket.channels = {};
@@ -52,16 +40,17 @@ io.sockets.on('connection', function (socket) {
     socket.on('getServers', function(){
       sendServersList();
     });
-
+socket.on('getPlayersCount', function(){socket.emit('CountPlayers', Object.keys(sockets).length);});
     function sendServersList(){
       var list = [];
       for (var c in channels)
         list.push(c)
       socket.emit('Servers', list)
     }
-
     socket.on('join', function (config) {
-        console.log("["+ socket.id + "] join ", config);
+        console.log("Player [" + socket.id + "] join ");
+		
+        console.log("Count of players: " + countplayers);
         var channel = config.channel;
         var userdata = config.userdata;
 
@@ -73,7 +62,7 @@ io.sockets.on('connection', function (socket) {
         if (!(channel in channels)) {
             channels[channel] = {peers: {}, creator: socket.id};
             socket.emit('NowYouAreHost');
-            console.log('New Channel Created. Creator:', socket.id)
+            console.log('New Channel Created. Creator: ', socket.id)
         }
         else socket.emit('JoinedToTheRoom', {hostId: channels[channel].creator});
 
@@ -130,7 +119,6 @@ io.sockets.on('connection', function (socket) {
             sockets[peer_id].emit('iceCandidate', {'peer_id': socket.id, 'ice_candidate': ice_candidate});
         }
     });
-
     socket.on('relaySessionDescription', function(config) {
         var peer_id = config.peer_id;
         var session_description = config.session_description;
