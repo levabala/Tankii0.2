@@ -40,8 +40,7 @@
     <script src="javascript/vendor/modernizr-2.7.1.min.js"></script>
   </head>
   <body class="index" id="to-top">
-
-    <!-- Side nav -->
+	<!-- Side nav -->
     <nav class="side-nav" role="navigation">
 
       <ul class="nav-side-nav">
@@ -53,10 +52,19 @@
     </nav> <!-- /.side-nav -->
 
 
+	<div style = 'background: darkgrey; font-size:14px; color: red;'  id='CountPlayers'></div>
+	<script>
+		function getcountPlayers(){ //ПАМАГИТИ ЭТАЙ ФУНКЦИИ СТАТЬ НАРМАЛЬНОЙ
+			var countPlayers='неизвестно';
+			return countPlayers
+		}
+		CountPlayers.innerHTML="Количество игроков онлайн: " + getcountPlayers();
+	</script>
 
 
     <!-- Jumbotron -->
     <header class="jumbotron" role="banner">
+	
 
       <div class="container">
 
@@ -304,7 +312,7 @@
       </div> <!-- /.container -->
 
     </footer> <!-- /.footer-section -->
-
+	
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="javascript/vendor/jquery-2.1.0.min.js"></script>
     <script src="javascript/bootstrap.min.js"></script>
