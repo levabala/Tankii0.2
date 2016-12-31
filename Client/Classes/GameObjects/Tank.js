@@ -3,7 +3,10 @@ function Tank(){
 
   var tank = this;
   if (typeof tank.color == 'undefined')  tank.color = 'brown'
-
+/*	this.team;
+  if (team == 'red')  this.color = 'brown';
+  if (team == 'blue')  this.color = 'darkblue';
+*/
   this.generateView = function(obj){
     var rect = document.createElementNS("http://www.w3.org/2000/svg",'rect');
     setAttr(rect, 'x', 0);
