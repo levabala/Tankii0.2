@@ -48,30 +48,30 @@ if(minfar >100){
 	if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
 		if(tank.pos.X<enemypos.X){
 			tank.toLeft();
-			tank.move();
+			
 		}
 		if(tank.pos.X>enemypos.X){
 			tank.toRight();
-			tank.move();
+			
 		}
 	}else{
 		if(tank.pos.Y>enemypos.Y){
 			tank.toTop();
-			tank.move();
+			
 		}
 		if(tank.pos.Y<enemypos.Y){
 			tank.toBottom();
-			tank.move();
+			
 		}
 	}
 }else if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
 	if(tank.pos.X>enemypos.X+1){
 		tank.toLeft();
-		tank.move();
+		
 	}
 	if(tank.pos.X<enemypos.X-1){
 		tank.toRight();
-		tank.move();
+		
 	}else{
 		if(tank.pos.Y<enemypos.Y-1){
 			tank.toBottom();
@@ -88,11 +88,11 @@ if(minfar >100){
 }else{
 	if(tank.pos.Y>enemypos.Y+1){
 		tank.toTop();
-		tank.move();
+		
 	}
 	if(tank.pos.Y<enemypos.Y-1){
 		tank.toBottom();
-		tank.move();
+		
 	}else{
 		if(tank.pos.X<enemypos.X-1){
 			tank.toRight();
