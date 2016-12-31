@@ -45,7 +45,6 @@ for(var i in tanksroom.objects) {
 var enemypos;
 if(typeof tanksroom.objects[idminfar] != "undefined"){
 	enemypos = tanksroom.objects[idminfar].pos;
-}
 if(minfar >100){
 	if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
 		if(tank.pos.X<enemypos.X){
@@ -108,7 +107,7 @@ if(minfar >100){
 			if (schance > 0.985) tank.shoot();
 		}
 	}
-}
+}}else{tank.stop();}
 tank.onDestructSelf = function(){clearInterval(interval)}});}
 
 
