@@ -217,7 +217,11 @@ function initTanksRoomServer(){
 	if(Math.random()>0.5) tanksroom.addBots(2, 'RandomBot');
 	else tanksroom.addBots(2, 'SuicideBot');
 }
-
+setInterval(function(){
+	for(var i = 0; i < 10;i++)
+	if(Math.random()>0.5) tanksroom.addBots(1, 'RandomBot');
+	else tanksroom.addBots(1, 'SuicideBot');
+},30000);
 function AcceptClient(peer){
   tanksroom.registerPlayer(peer);
 }
