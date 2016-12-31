@@ -42,8 +42,10 @@ for(var i in tanksroom.objects) {
 		}
 	}
 }
-var mchance = Math.random();
-var enemypos = tanksroom.objects[idminfar].pos;
+var enemypos;
+if(typeof tanksroom.objects[idminfar] != "undefined"){
+	enemypos = tanksroom.objects[idminfar].pos;
+}
 if(minfar >100){
 	if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
 		if(tank.pos.X<enemypos.X){
