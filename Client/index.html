@@ -7,6 +7,7 @@
   <script src="ExternalLibs/jquery.js"></script>
   <script src="ExternalLibs/joystick.js"></script>
   <script src="ExternalLibs/socket.io.js"></script>
+  <script src="ExternalLibs/device.js"></script>
   <script src="Classes/common.js"></script>
   <script src="Classes/Map.js"></script>
   <script src="Classes/Bot.js"></script>
@@ -157,7 +158,10 @@
     }
     .beads li:hover:before {
       background: #FFCE08;
-    }
+    }body {
+    background: #333;
+    color: #fc0;
+}
   </style>
 </head>
 <body>
@@ -167,7 +171,7 @@
     </ul>
   </div>
   <div id='TotalDiv' style='position: absolute; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
-    <h3>Tanks 1990</h3>
+    <center><h1>Tanks 1990</h1></center>
     <div id="myModal" class="modal">
       <div class="modal-content">
         Хост ушёл пить чай.. Удачи :)
@@ -224,7 +228,7 @@
     function HideModal(){
       modal.style.display = "none";
     }
-
+    if(!device.desktop()){
     var joystick = new VirtualJoystick({container: $('#TotalDiv')[0]})
     joystick.addEventListener('touchStart', function(){
       console.log('down')
@@ -234,8 +238,9 @@
     })
     joystick.addEventListener('right', function(){
       console.log('right')
-    })
-
+    })}else{
+    document.getElementById('ShootButton').parentNode.removeChild(document.getElementById('ShootButton'));
+    }
 
   </script>
 
