@@ -7,6 +7,7 @@
   <script src="ExternalLibs/jquery.js"></script>
   <script src="ExternalLibs/joystick.js"></script>
   <script src="ExternalLibs/socket.io.js"></script>
+  <script src="ExternalLibs/device.js"></script>
   <script src="Classes/common.js"></script>
   <script src="Classes/Map.js"></script>
   <script src="Classes/Bot.js"></script>
@@ -224,7 +225,7 @@
     function HideModal(){
       modal.style.display = "none";
     }
-
+    if(!device.desktop()){
     var joystick = new VirtualJoystick({container: $('#TotalDiv')[0]})
     joystick.addEventListener('touchStart', function(){
       console.log('down')
@@ -234,8 +235,9 @@
     })
     joystick.addEventListener('right', function(){
       console.log('right')
-    })
-
+    })}else{
+    document.getElementById('ShootButton').parentNode.removeChild(document.getElementById('ShootButton'));
+    }
 
   </script>
 
