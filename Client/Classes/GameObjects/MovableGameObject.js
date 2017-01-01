@@ -53,19 +53,26 @@ function MovableGameObject(){
   this.tick = function(){
     var changed = false;
     var lastR = mgobj.rotation;
-    var newcellP = new Pos((mgobj.pos.X - Math.floor(mgobj.pos.X) < Math.ceil(mgobj.pos.X) - mgobj.pos.X) ? Math.floor(mgobj.pos.X) : Math.ceil(mgobj.pos.X), ((mgobj.pos.Y - Math.floor(mgobj.pos.Y) < Math.ceil(mgobj.pos.Y) - mgobj.pos.Y)) ? Math.floor(mgobj.pos.Y) : Math.ceil(mgobj.pos.Y));
-    updatemapPosition(mgobj.cellP, newcellP);
-    mgobj.cellP = newcellP;
+
     if (mgobj.isVeryNear()){
+      var newcellP = new Pos((mgobj.pos.X - Math.floor(mgobj.pos.X) < Math.ceil(mgobj.pos.X) - mgobj.pos.X) ? Math.floor(mgobj.pos.X) : Math.ceil(mgobj.pos.X), ((mgobj.pos.Y - Math.floor(mgobj.pos.Y) < Math.ceil(mgobj.pos.Y) - mgobj.pos.Y)) ? Math.floor(mgobj.pos.Y) : Math.ceil(mgobj.pos.Y));
+      if (!mgobj.cellP.compareWith(newcellP)){
+        updatemapPosition(mgobj.cellP, newcellP);
+        mgobj.cellP = newcellP;
+      }
+
+      mgobj.IWantToDoSmth();
+
       var collResult = checkCollisionFuns[mgobj.rotation.indexOf(1)]();
       if (collResult) {
         mgobj.stop();
         mgobj.collisionCaseAction(collResult);
+        mgobj.IWantToDoSmth();
       }
 
-      mgobj.IWantToDoSmth();
       changed = true;
     }
+
     changed = changed || mgobj.moveOn || lastR != mgobj.rotation || mgobj.wasDamaged;
 
     move();
@@ -110,10 +117,14 @@ function MovableGameObject(){
     if (mgobj.moveOn == 0) return;
     //mgobj.stopping = true;
     mgobj.IWantToDoSmth = function(){
-        mgobj.pos = new Pos((mgobj.pos.X - Math.floor(mgobj.pos.X) < Math.ceil(mgobj.pos.X) - mgobj.pos.X) ? Math.floor(mgobj.pos.X) : Math.ceil(mgobj.pos.X), ((mgobj.pos.Y - Math.floor(mgobj.pos.Y) < Math.ceil(mgobj.pos.Y) - mgobj.pos.Y)) ? Math.floor(mgobj.pos.Y) : Math.ceil(mgobj.pos.Y));
+        RoundPosition();
         mgobj.moveOn = 0;
         mgobj.IWantToDoSmth = function(){};
     }
+  }
+
+  function RoundPosition(){
+    mgobj.pos = new Pos((mgobj.pos.X - Math.floor(mgobj.pos.X) < Math.ceil(mgobj.pos.X) - mgobj.pos.X) ? Math.floor(mgobj.pos.X) : Math.ceil(mgobj.pos.X), ((mgobj.pos.Y - Math.floor(mgobj.pos.Y) < Math.ceil(mgobj.pos.Y) - mgobj.pos.Y)) ? Math.floor(mgobj.pos.Y) : Math.ceil(mgobj.pos.Y));
   }
 
   //external commands
@@ -147,11 +158,15 @@ function MovableGameObject(){
 
   function updatemapPosition(oldP, newP){
     for (var dx = 0; dx < mgobj.width; dx++)
-      for (var dy = 0; dy < mgobj.height; dy++)
-        mgobj.map.field[oldP.X + dx][oldP.Y + dy].obj = {physical: false, id: '-'};
+      for (var dy = 0; dy < mgobj.height; dy++){
+        mgobj.map.field[oldP.X + dx][oldP.Y + dy].obj = {physical: false, id: null};
+      }
 
     for (var dx = 0; dx < mgobj.width; dx++)
-      for (var dy = 0; dy < mgobj.height; dy++)
+      for (var dy = 0; dy < mgobj.height; dy++){
+        //if (mgobj.map.field[newP.X + dx][newP.Y + dy].obj.physical) throw 'Allah Akbar'
         mgobj.map.field[newP.X + dx][newP.Y + dy].obj = mgobj;
+      }
+    RoundPosition();
   }
 }

@@ -27,8 +27,7 @@ function TanksRoom(map,jqcontainer){
         tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = obj;
 
     counter++;
-    tr.appendObjectHandler(obj);
-    console.log(tr.objects)
+    tr.appendObjectHandler(obj);    
     return obj.id;
   }
 
@@ -55,7 +54,6 @@ function TanksRoom(map,jqcontainer){
   }
 
   this.removeObject = function(obj){
-    console.log(obj.id,'removed')
     obj.hp = 0;
     obj.svgBody.remove()
     tr.removedObjects.push(obj.id)
@@ -97,7 +95,7 @@ function TanksRoom(map,jqcontainer){
       if (obj.tick())
         tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
     }
-  }, 1);
+  }, 4);
 
   this.stopGameLoop = function(){
     clearInterval(gameInterval)
@@ -140,7 +138,6 @@ function BuildTanksRoomFromSnap(snap,container){
       var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
       gameObj.id = objSnap.id;
       tanksroom.setObject(gameObj.id, gameObj)
-      //pos,map,width,height,hp,physical,rotation,speed,commandsHandler,destructSelfFun,createObjectFun
     }
   return tanksroom
 }

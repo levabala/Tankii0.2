@@ -7,6 +7,12 @@ function initTanksRoomServer(){
   tanksroom.appendObject(new Wall(new Pos(10,10), map1, 10, 5, 10, true, null, null, tanksroom.removeObject))
 
   restartMyTank();
+  var bot1 = new Tank(new Pos(10,5), map1, 3, 3, 5, true, [0,1,0,0], 0.05, tanksroom.removeObject, tanksroom.appendObject)
+  var bot2 = new Tank(new Pos(5,10), map1, 3, 3, 5, true, [0,1,0,0], 0.05, tanksroom.removeObject, tanksroom.appendObject)
+  tanksroom.appendObject(bot1);
+  tanksroom.appendObject(bot2);
+  RandomBot(bot1)
+  RandomBot(bot2)
 
   tanksroom.appendObjectHandler = function(obj){
     var snap = obj.createSnap();

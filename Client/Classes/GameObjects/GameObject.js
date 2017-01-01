@@ -29,6 +29,10 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
     return changed;
   }
 
+  this.onDestructSelf = function(){
+
+  }
+
   this.damaged = function(damage){
     if (gobj.deathless) return;
 
@@ -48,6 +52,8 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
 
     for (var ch in gobj.commandsHandlers)
       gobj.commandsHandlers[ch].disable();
+      
+    gobj.onDestructSelf();
   }
 
   this.createObject = function(obj){
