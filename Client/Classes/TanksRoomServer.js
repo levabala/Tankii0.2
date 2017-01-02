@@ -1,19 +1,28 @@
+function randomInteger(min, max) {
+  var rand = min + Math.random() * (max - min)
+  rand = Math.round(rand);
+  return rand;
+}
+var map1
+function addBot(count){
+		for(var i =0; i<count;i++){
+			var bot = new Tank(new Pos(randomInteger(3,20),randomInteger(3,10)), map1, 3, 3, 5, true, [0,1,0,0], 0.05, tanksroom.removeObject, tanksroom.appendObject)
+			tanksroom.appendObject(bot);
+			RandomBot(bot)
+		}
+		
+	}
 function initTanksRoomServer(){
-  var map1 = new Map(30,20);
+  map1 = new Map(30,20);
   map1.fitToContainer(svg.width(), svg.height())
   //svg.append(map1.generateMesh())
-
+	
+  
   tanksroom = new TanksRoom(map1,container);
   tanksroom.appendObject(new Wall(new Pos(10,10), map1, 10, 5, 10, true, null, null, tanksroom.removeObject))
-
+  
   restartMyTank();
-  var bot1 = new Tank(new Pos(10,5), map1, 3, 3, 5, true, [0,1,0,0], 0.05, tanksroom.removeObject, tanksroom.appendObject)
-  var bot2 = new Tank(new Pos(5,10), map1, 3, 3, 5, true, [0,1,0,0], 0.05, tanksroom.removeObject, tanksroom.appendObject)
-  tanksroom.appendObject(bot1);
-  tanksroom.appendObject(bot2);
-  RandomBot(bot1)
-  RandomBot(bot2)
-
+	addBot(2);
   tanksroom.appendObjectHandler = function(obj){
     var snap = obj.createSnap();
     snap.constructorName = obj.constructor.name
