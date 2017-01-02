@@ -50,3 +50,6 @@ var joystickmap1 = function(tank){
     'left': tank.toLeft,
   }
 }
+
+var mapWidth = 90;
+var mapHeight = 50;

@@ -27,12 +27,17 @@ function TanksRoom(map,jqcontainer){
         tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = obj;
 
     counter++;
-    tr.appendObjectHandler(obj);    
+    tr.appendObjectHandler(obj);
     return obj.id;
   }
 
   this.appendObjectHandler = function(obj){
 
+  }
+
+  this.destructThemAll = function(){
+    for (var o in tr.objects)
+      if (tr.objects[o].destructSelfFun) tr.objects[o].destructSelf();
   }
 
   this.setObject = function(id,obj){

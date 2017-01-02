@@ -30,6 +30,7 @@ function getParameterByName(name, url) {
 }
 
 function disconnect(){
+  if (tanksroom) tanksroom.destructThemAll();
   HostPeer = null;
   HostId = false;
   peers = {};                /* keep track of our peerConnection connections, indexed by peer_id (aka socket.io id) */
@@ -83,11 +84,13 @@ function initWebRtc() {
     isServer = true;
     signaling_socket.emit('getServers');
     console.warn('Now I am a HOST')
+    $('#Header')[0].innerHTML = 'Room: ' + DEFAULT_ROOM + '(my)'
   });
 
   signaling_socket.on('JoinedToTheRoom', function(config){
     console.warn('I have joined to the room. HostId:',config.hostId)
     HostId = config.hostId
+    $('#Header')[0].innerHTML = 'Room: ' + DEFAULT_ROOM
   });
 
   signaling_socket.on('RoomClosed', function(){

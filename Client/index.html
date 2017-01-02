@@ -38,11 +38,12 @@
     input[type='button'] {
       color: #FF0000;
       font-weight: bold;
-      padding: 4px 3px 3px 2px;
+      padding: 4px 5px 5px 2px;
       box-shadow: 0 0 10px rgba(0,0,0,0.7);
       background: rgb(255,245,245);
       border-radius: 20px;
       transition: background 0.5s ease;
+      height: 35px;
     }
     input[type='button']:hover{
       background: rgb(210,200,200);
@@ -177,9 +178,9 @@
   </style>
 </head>
 <body style='margin: 0px; padding: 4px'>
-  <div id='Menu' style='position:absolute; z-index: 999'>
-      <input type='button' value='Добавить бота'/>
-      <input type='button' value='Создать комнату'/>
+  <div id='Menu' style='position:absolute; z-index: 999; height: 40px'>
+      <input type='button' onclick='addBot(1); this.blur()' value='Добавить бота'/>
+      <input type='button' onclick='var name = prompt("Enter roomName"); if (!name  || name.length == 0) return; container.innerHTML = ""; DEFAULT_ROOM = name;  disconnect();initWebRtc();' value='Создать комнату'/>
   </div>
   <div id='ServersList'>
     <ul class="beads" id='ServerListUl'>
@@ -187,7 +188,7 @@
     </ul>
   </div>
   <div id='TotalDiv' style='position: absolute; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
-    <center><h1>Tanks 1990</h1></center>
+    <center><h1 id='Header'>Tanks 1990</h1></center>
     <div id="myModal" class="modal">
       <div class="modal-content">
         Хост ушёл пить чай.. Удачи :)
@@ -196,7 +197,7 @@
     <div id='ToggleButton'>
        <img id='ToggleImg' src="ToggleImage.png" width='50' height='45'>
     </div>
-    <div id='MainDiv' style="position: absolute; left: 10px; right: 100px; bottom: 10px; top: 40px; z-index: 0">
+    <div id='MainDiv' style="position: absolute; left: 10px; right: 100px; bottom: 10px; top: 50px; z-index: 0">
       <svg id="SVGRoom" style="width: 100%; height: 100%;">
       </svg>
     </div>

@@ -31,11 +31,12 @@ function Tank(){
   this.shoot = function(){
     var x = tank.pos.X+tank.rotation[3]*-1+tank.rotation[1]*tank.width+(1-(tank.rotation[1]+tank.rotation[3]))*Math.floor(tank.width/2);
     var y = tank.pos.Y+tank.rotation[0]*-1+tank.rotation[2]*tank.height+(1-(tank.rotation[0]+tank.rotation[2]))*Math.floor(tank.height/2);
-    /*if (tank.map[Math.floor(x)][Math.floor(y)].obj.physical){
-      tank.map[Math.floor(x)][Math.floor(y)].obj.damaged(1);
-      return;
-    }*/
     var shell = new Shell(new Pos(x, y), tank.map, 1, 1, 1, 1, tank.rotation, 0.2, tank.destructSelfFun);
+    var mapObj = tank.map.field[shell.cellP.X][shell.cellP.Y].obj;
+    if (mapObj.physical){
+      mapObj.damaged(1);
+      return;
+    }
     shell.moveOn = 1;
     tank.createObject(shell);
   }
