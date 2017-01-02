@@ -1,8 +1,9 @@
-function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelfFun,createObjectFun){
+function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelfFun,createObjectFun,color){
   var gobj = this;
 
   //base props
   this.pos = pos;
+  this.color = color;
   this.cellP = new Pos(Math.floor(pos.X), Math.floor(pos.Y));
   this.map = map;
   this.width = width;
@@ -14,8 +15,9 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   this.id = null;
   this.hp = hp;
   this.maxhp = hp;
-  this.hpPerc = 1;
+  this.hpPerc = 1; //health points percentage
   this.wasDamaged = false;
+  this.deathless = (hp == 'deathless');
 
   //external access
   this.destructSelfFun = destructSelfFun;
@@ -42,17 +44,14 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
 
     gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
     gobj.wasDamaged = true;
-    //console.log('damaged')
   }
 
   this.destructSelf = function(){
-    //gobj.svgBody.setAttributeNS(null,'width','0');
-    //gobj.svgBody.setAttributeNS(null,'height','0');
     gobj.destructSelfFun(gobj);
 
     for (var ch in gobj.commandsHandlers)
       gobj.commandsHandlers[ch].disable();
-      
+
     gobj.onDestructSelf();
   }
 
@@ -83,11 +82,6 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   }
 
   this.setProperties = function(props){
-    /*if (props.hp < 1) {
-      console.warn('destructing!')
-      gobj.destructSelf()
-      return;
-    }*/
     for (var p in props){
       gobj[p] = props[p]
     }

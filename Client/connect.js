@@ -104,9 +104,8 @@ function initWebRtc() {
   }
 
   signaling_socket.on('addPeer', function(config) {
-      console.log('Signaling server said to add peerConnection:', config);
+      //console.log('Signaling server said to add peerConnection:', config);
       var peer_id = config.peer_id;
-      //console.warn('Is the peer room-holder:', config.isCreator)
       if (peer_id in peers) {
           /* This could happen if the user joins multiple channels where the other peerConnection is also in. */
           //console.log("Already connected to peerConnection ", peer_id);

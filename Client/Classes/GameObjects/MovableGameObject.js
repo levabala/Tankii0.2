@@ -66,7 +66,6 @@ function MovableGameObject(){
 
       var collResult = checkCollisionFuns[mgobj.rotation.indexOf(1)]();
       if (collResult) {
-        console.log('collision!')
         mgobj.stop();
         mgobj.collisionCaseAction(collResult);
         mgobj.IWantToDoSmth();

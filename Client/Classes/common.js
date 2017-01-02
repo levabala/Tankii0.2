@@ -26,8 +26,14 @@ function Pos(x,y){
   }
 }
 
+function randomInteger(min, max) {
+  var rand = min + Math.random() * (max - min)
+  rand = Math.round(rand);
+  return rand;
+}
+
 function setAttr(obj,attr,value){
-  obj.setAttributeNS(null,attr,value);
+  obj.setAttribute(attr,value);
 }
 
 function joystickHandler(j, downmap, upcase){

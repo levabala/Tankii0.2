@@ -27,11 +27,11 @@ function TanksRoom(map,jqcontainer){
         tr.map.field[obj.cellP.X + dx][obj.cellP.Y + dy].obj = obj;
 
     counter++;
-    tr.appendObjectHandler(obj);
+    tr.onObjectAdded(obj);
     return obj.id;
   }
 
-  this.appendObjectHandler = function(obj){
+  this.onObjectAdded = function(obj){
 
   }
 
@@ -94,13 +94,16 @@ function TanksRoom(map,jqcontainer){
   //game loop
   this.changedObjects = {};
   this.removedObjects = [];
-  var gameInterval = setInterval(function(){
-    for (var o in tr.objects){
-      var obj = tr.objects[o];
-      if (obj.tick())
-        tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
-    }
-  }, 4);
+
+  this.runGameLoop = function(){
+    var gameInterval = setInterval(function(){
+      for (var o in tr.objects){
+        var obj = tr.objects[o];
+        if (obj.tick())
+          tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
+      }
+    }, 4);
+  }
 
   this.stopGameLoop = function(){
     clearInterval(gameInterval)
@@ -117,7 +120,7 @@ function TanksRoom(map,jqcontainer){
       $(jqcontainer).hide().show(0);
     },500);
 
-  this.createShap = function(){
+  this.createSnap = function(){
     var snaps = {objects: {}, map: {}};
     for (var t in tr.GameObjectTypes)
       snaps.objects[t] = [];
@@ -136,7 +139,20 @@ function BuildTanksRoomFromSnap(snap,container){
   var map = new Map(snap.map.width,snap.map.height);
   map.fitToContainer(svg.width(), svg.height())
   var tanksroom = new TanksRoom(map,container);
-  tanksroom.stopGameLoop();
+  for (var constr in snap.objects)
+    for (var o in snap.objects[constr]){
+      var objSnap = snap.objects[constr][o];
+      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
+      gameObj.id = objSnap.id;
+      tanksroom.setObject(gameObj.id, gameObj)
+    }
+  return tanksroom
+}
+
+function BuildTanksRoomServerFromSnap(snap,container){
+  var map = new Map(snap.map.width,snap.map.height);
+  map.fitToContainer(svg.width(), svg.height())
+  var tanksroom = new TanksRoomServer(map,container);
   for (var constr in snap.objects)
     for (var o in snap.objects[constr]){
       var objSnap = snap.objects[constr][o];

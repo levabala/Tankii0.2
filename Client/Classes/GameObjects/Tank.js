@@ -2,6 +2,7 @@ function Tank(){
   MovableGameObject.apply(this,arguments);
 
   var tank = this;
+  if (typeof tank.color == 'undefined')  tank.color = 'brown'
 
   this.generateView = function(obj){
     var rect = document.createElementNS("http://www.w3.org/2000/svg",'rect');
@@ -9,7 +10,7 @@ function Tank(){
     setAttr(rect, 'y', 0);
     setAttr(rect, 'width', obj.width);
     setAttr(rect, 'height', obj.height);
-    setAttr(rect, 'fill', 'brown');
+    setAttr(rect, 'fill', tank.color);
     var turret = document.createElementNS("http://www.w3.org/2000/svg",'rect');
     setAttr(turret, 'x', 1);
     setAttr(turret, 'y', 1);
@@ -28,7 +29,13 @@ function Tank(){
     obj.svgBody.appendChild(gun);
   }
 
+  var canShoot = true;
+  var shootTimeout = null;
+  this.reloadTime = 100;
   this.shoot = function(){
+    if (!canShoot)
+      return;
+
     var x = tank.pos.X+tank.rotation[3]*-1+tank.rotation[1]*tank.width+(1-(tank.rotation[1]+tank.rotation[3]))*Math.floor(tank.width/2);
     var y = tank.pos.Y+tank.rotation[0]*-1+tank.rotation[2]*tank.height+(1-(tank.rotation[0]+tank.rotation[2]))*Math.floor(tank.height/2);
     var shell = new Shell(new Pos(x, y), tank.map, 1, 1, 1, 1, tank.rotation, 0.2, tank.destructSelfFun);
@@ -39,6 +46,9 @@ function Tank(){
     }
     shell.moveOn = 1;
     tank.createObject(shell);
+
+    canShoot = false;
+    setTimeout(function(){canShoot = true; clearTimeout(shootTimeout); shootTimeout = null;}, tank.reloadTime)
   }
 
   this.generateView(this);

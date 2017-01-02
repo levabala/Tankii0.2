@@ -6,7 +6,7 @@ svg.append(container);
 initWebRtc();
 
 var tanksroom;
-var mytank;
+var mytank = {};
 var keymapdown1 = function(tank){
   return {
     38: function(){
@@ -53,3 +53,17 @@ var joystickmap1 = function(tank){
 
 var mapWidth = 90;
 var mapHeight = 50;
+
+function downloadRoom(){
+  var snap = tanksroom.createSnap();
+  download(JSON.stringify({time: new Date(), snap: snap},null,2), 'snap.json', 'application/json');
+}
+
+//tanksRoom config dropping
+var zone = new FileDrop('MainDiv', {input: false})
+
+zone.event('send', function (files) {
+  files.each(function (file) {
+    alert(file.name + ' (' + file.size + ') bytes\n', file)
+  })
+})
