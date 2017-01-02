@@ -7,7 +7,7 @@
   <script src="ExternalLibs/jquery.js"></script>
   <script src="ExternalLibs/joystick.js"></script>
   <script src="ExternalLibs/socket.io.js"></script>
-  <script src="ExternalLibs/device.js"></script>
+  
   <script src="Classes/common.js"></script>
   <script src="Classes/Map.js"></script>
   <script src="Classes/Bot.js"></script>
@@ -35,12 +35,38 @@
       font-family: cursive;
       z-index: 1;
     }
+	#CreateRoom{
+	color: #FF0000;
+      position: absolute;
+      left: 140px;
+      top: 10px;
+      padding-left: 2px;
+      padding-top: 4px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+      background: rgb(255,245,245);
+      border-radius: 20px;
+      transition: background 0.5s ease;
+      z-index: 2;
+    }
+    #AddBot {
+	color: #FF0000;
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      padding-left: 2px;
+      padding-top: 4px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+      background: rgb(255,245,245);
+      border-radius: 20px;
+      transition: background 0.5s ease;
+      z-index: 2;
+    }
     #ToggleButton {
       position: absolute;
       right: 10px;
       top: 10px;
-      padding-left: 2px;
-      padding-top: 4px;
+      padding-left: 3px;
+      padding-top: 6px;
       box-shadow: 0 0 10px rgba(0,0,0,0.7);
       background: rgb(255,245,245);
       border-radius: 15px;
@@ -165,6 +191,13 @@
   </style>
 </head>
 <body>
+<div id='AddBot'>&nbsp; <b>Добавить бота</b>&nbsp;&nbsp;</div>
+  <div id='ServersList'>
+    <ul class="beads" id='ServerListUl'>
+      <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
+    </ul>
+  </div>
+  <div id='CreateRoom'>&nbsp; <b>Создать комнату</b>&nbsp;&nbsp;</div>
   <div id='ServersList'>
     <ul class="beads" id='ServerListUl'>
       <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
@@ -194,6 +227,12 @@
     //toggleTheMenu(350);
     $('#ToggleButton').click(function(){
        toggleTheMenu(350);
+    });
+    $('#AddBot').click(function(){
+       addBot(1);
+    });
+    $('#CreateRoom').click(function(){
+       createroom(1);
     });
 
     $('#ServersList')[0].onmousedown = function(e){
