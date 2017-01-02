@@ -59,18 +59,18 @@ function MovableGameObject(){
       if (!mgobj.cellP.compareWith(newcellP)){
         updatemapPosition(mgobj.cellP, newcellP);
         mgobj.cellP = newcellP;
+        changed = true;
       }
 
       mgobj.IWantToDoSmth();
 
       var collResult = checkCollisionFuns[mgobj.rotation.indexOf(1)]();
       if (collResult) {
+        console.log('collision!')
         mgobj.stop();
         mgobj.collisionCaseAction(collResult);
         mgobj.IWantToDoSmth();
       }
-
-      changed = true;
     }
 
     changed = changed || mgobj.moveOn || lastR != mgobj.rotation || mgobj.wasDamaged;

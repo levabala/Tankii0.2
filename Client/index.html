@@ -7,7 +7,7 @@
   <script src="ExternalLibs/jquery.js"></script>
   <script src="ExternalLibs/joystick.js"></script>
   <script src="ExternalLibs/socket.io.js"></script>
-  
+
   <script src="Classes/common.js"></script>
   <script src="Classes/Map.js"></script>
   <script src="Classes/Bot.js"></script>
@@ -35,31 +35,17 @@
       font-family: cursive;
       z-index: 1;
     }
-	#CreateRoom{
-	color: #FF0000;
-      position: absolute;
-      left: 140px;
-      top: 10px;
-      padding-left: 2px;
-      padding-top: 4px;
+    input[type='button'] {
+      color: #FF0000;
+      font-weight: bold;
+      padding: 4px 3px 3px 2px;
       box-shadow: 0 0 10px rgba(0,0,0,0.7);
       background: rgb(255,245,245);
       border-radius: 20px;
       transition: background 0.5s ease;
-      z-index: 2;
     }
-    #AddBot {
-	color: #FF0000;
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      padding-left: 2px;
-      padding-top: 4px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.7);
-      background: rgb(255,245,245);
-      border-radius: 20px;
-      transition: background 0.5s ease;
-      z-index: 2;
+    input[type='button']:hover{
+      background: rgb(210,200,200);
     }
     #ToggleButton {
       position: absolute;
@@ -190,9 +176,11 @@
 }
   </style>
 </head>
-<body>
-<div id='AddBot'>&nbsp; <b>Добавить бота</b>&nbsp;&nbsp;</div>
-  <div id='CreateRoom'>&nbsp; <b>Создать комнату</b>&nbsp;&nbsp;</div>
+<body style='margin: 0px; padding: 4px'>
+  <div id='Menu' style='position:absolute; z-index: 999'>
+      <input type='button' value='Добавить бота'/>
+      <input type='button' value='Создать комнату'/>
+  </div>
   <div id='ServersList'>
     <ul class="beads" id='ServerListUl'>
       <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
@@ -208,8 +196,8 @@
     <div id='ToggleButton'>
        <img id='ToggleImg' src="ToggleImage.png" width='50' height='45'>
     </div>
-    <div id='MainDiv' style="border: solid darkred 1px; position: absolute; left: 10px; right: 100px; bottom: 10px; top: 40px; z-index: 0">
-      <svg id="SVGRoom" style="width: 100%; height: 100%;border: solid green 1px">
+    <div id='MainDiv' style="position: absolute; left: 10px; right: 100px; bottom: 10px; top: 40px; z-index: 0">
+      <svg id="SVGRoom" style="width: 100%; height: 100%;">
       </svg>
     </div>
   </div>
@@ -222,12 +210,6 @@
     //toggleTheMenu(350);
     $('#ToggleButton').click(function(){
        toggleTheMenu(350);
-    });
-    $('#AddBot').click(function(){
-       addBot(1);
-    });
-    $('#CreateRoom').click(function(){
-       createroom(1);
     });
 
     $('#ServersList')[0].onmousedown = function(e){
