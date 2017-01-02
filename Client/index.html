@@ -20,6 +20,15 @@
   <script src="Classes/TanksRoomClient.js"></script>
   <script src="Classes/TanksRoomServer.js"></script>
   <style>
+  .red.cssgradients {
+  color: #FFFF00;
+ background:-webkit-gradient( linear, left bottom, left top, color-stop(0.06, #9c1818), color-stop(0.77, #e62525) );
+ background:-moz-linear-gradient( center bottom, #9c1818 6%, #e62525 77% );
+}
+.red.cssgradients:hover {
+ background:-webkit-gradient( linear, left bottom, left top, color-stop(0.06, #780d0d), color-stop(0.77, #cf1717) );
+ background:-moz-linear-gradient( center bottom, #780d0d 6%, #cf1717 77% );
+}
     #ServersList{
       position: absolute;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -178,6 +187,29 @@
   </style>
 </head>
 <body style='margin: 0px; padding: 4px'>
+  <div id='WelcomeWindow'>
+	<center><h1 style='font-size:50px;'>Tankii Project</h1></center>
+	
+	<center><button class="site-button red cssgradients" id = 'playbutton'><h1 style='font-size:100px; padding-right:50px;padding-left:50px;'>Играть</h1></button></center>
+	<center><h1>Основная информация</h1>
+
+
+	<h2>Управление танком</h2>
+<h3><strong>Движение танка</strong>: стрелки на клавиатуре на стационарных компьютерах, джойстик(вызывается нажатием на экран) на портативных компьютерах.</h3>
+
+<h3><strong>Стрельба</strong>: пробел на стационарных компьютерах, круглая кнопка в правом нижнем углу на портативных компьютерах</h3>
+
+<h3><strong>Дополнительные функции</strong>: возрождение - R, спавн бота - B. В верхнем левом углу есть кнопки создания новой комнаты и добавления ботов.</h3>
+
+	<h2>Информация об игре</h2>
+
+
+<h3><strong>Открытый исходный код</strong>: весь исходный код можно найти в репозитории по ссылке&nbsp;<a href="https://github.com/levabala/Tankii0.2">https://github.com/levabala/Tankii0.2</a>.</h3>
+
+<h3><strong>У нас нет сервера</strong>: все вычисления производятся на компьютере пользователя, &quot;хоста&quot; комнаты. Если вы увидите сообщение о том, что &quot;хост ушел пить чай&quot;, не пугайтесь: просто хост комнаты скрыл вкладку с игрой.</h3>
+	</center>
+  </div>
+  <div id='TotalDiv' style='position: absolute; display:none; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
   <div id='Menu' style='position:absolute; z-index: 999; height: 40px'>
       <input type='button' onclick='addBot(1); this.blur()' value='Добавить бота'/>
       <input type='button' onclick='var name = prompt("Enter roomName"); if (!name  || name.length == 0) return; container.innerHTML = ""; DEFAULT_ROOM = name;  disconnect();initWebRtc();' value='Создать комнату'/>
@@ -187,7 +219,6 @@
       <li><a onclick="DEFAULT_ROOM = this.parentNode.id; container.innerHTML = ''; disconnect();initWebRtc();">OfficialRoom</a></li>
     </ul>
   </div>
-  <div id='TotalDiv' style='position: absolute; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
     <center><h1 id='Header'>Tanks 1990</h1></center>
     <div id="myModal" class="modal">
       <div class="modal-content">
@@ -201,9 +232,10 @@
       <svg id="SVGRoom" style="width: 100%; height: 100%;">
       </svg>
     </div>
+	<div id='ShootButton' ontouchstart='if (mytank) mytank.shoot()' class='button' style='position: absolute; right: 1%; bottom: 1%'/>
   </div>
-  <div id='ShootButton' ontouchstart='if (mytank) mytank.shoot()' class='button' style='position: absolute; right: 1%; bottom: 1%'/>
-  <script>
+   <script>
+   
     //interface script
     var menuOn = false;
     var toggleBut = $('#ToggleImg')[0];
@@ -255,10 +287,16 @@
     joystick.addEventListener('right', function(){
       console.log('right')
     })
-
+	playbutton.addEventListener('click',function(){
+	WelcomeWindow.style.display='none';
+	TotalDiv.style.display = 'block';
+	var connectscript = document.createElement('script');
+	connectscript.src = 'connect.js';
+	 document.body.appendChild(connectscript);
+	var mainscript = document.createElement('script');
+	mainscript.src = 'main.js';
+	 document.body.appendChild(mainscript);
+	});
   </script>
-
-  <script src="connect.js"></script>
-  <script src="main.js"></script>
 </body>
 </html>
