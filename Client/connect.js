@@ -1,4 +1,4 @@
-var SIGNALING_SERVER = "http://62.84.116.86:3030";
+var SIGNALING_SERVER = "http://62.84.111.201:3030";
 var DEFAULT_ROOM = 'OfficialRoom'
 var ICE_SERVERS = [
   {url:"stun:stun.l.google.com:19302"}
