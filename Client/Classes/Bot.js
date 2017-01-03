@@ -46,13 +46,13 @@ if(minfar >100){
 		}
 	}
 }else if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
-	if(tank.pos.X<enemypos.X-1){
-		tank.toLeft();
-			tank.move();
-	}
 	if(tank.pos.X>enemypos.X+1){
+		tank.toLeft();
+		tank.move();
+	}
+	if(tank.pos.X<enemypos.X-1){
 		tank.toRight();
-			tank.move();
+		tank.move();
 	}else{
 		if(tank.pos.Y<enemypos.Y-1){
 			tank.toBottom();
@@ -62,18 +62,18 @@ if(minfar >100){
 		}else{
 			tank.toTop();
 			tank.stop();
-    var schance = Math.random();
-    if (schance > 0.985) tank.shoot();
+			var schance = Math.random();
+			if (schance > 0.985) tank.shoot();
 		}
 	}
 }else{
 	if(tank.pos.Y>enemypos.Y+1){
 		tank.toTop();
-			tank.move();
+		tank.move();
 	}
 	if(tank.pos.Y<enemypos.Y-1){
 		tank.toBottom();
-			tank.move();
+		tank.move();
 	}else{
 		if(tank.pos.X<enemypos.X-1){
 			tank.toRight();
@@ -88,8 +88,4 @@ if(minfar >100){
 		}
 	}
 }
-  tank.onDestructSelf = function(){
-    clearInterval(interval)
-  }
-});
-}
+tank.onDestructSelf = function(){clearInterval(interval)}});}
