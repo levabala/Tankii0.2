@@ -100,13 +100,14 @@ function TanksRoomServer(){
         tr.restartHostTank();
         break;
       case 66:
-        tr.addBots(1, 'RandomBot');
+        tr.addBots(1, (Math.random() > 0.8) ? 'RandomBot' : 'SuicideBot');
         break;
     }
   }
 
   //adding some stupid bots from available list
   this.addBots = function(count, botType){
+    console.log(botType)
   	for(var i = 0; i < count; i++){
   		var bot = new Tank(getPositionToSpawn(), tr.map, tr.stp.size.width, tr.stp.size.height, tr.stp.hp, true, tr.stp.rotation, tr.stp.speed, tr.removeObject, tr.appendObject, tr.stp.botColor)
   		tr.appendObject(bot);
@@ -170,7 +171,7 @@ function TanksRoomServer(){
     justTank.setCommandsHandler(j1)
 
     tr.appendObject(justTank);
-  }
+  }  
 }
 
 
