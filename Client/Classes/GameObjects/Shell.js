@@ -2,8 +2,12 @@ function Shell(){
   MovableGameObject.apply(this,arguments)
   var shell = this;
 
+  this.papa = {};
+
   this.collisionCaseAction = function(obj){
-    obj.damaged(1)
+    obj.damaged(1,shell.papa)
+    //if (obj.hp <= 0 && obj.constructor.name == 'Tank') shell.papa.kill(obj.id);
+
     shell.destructSelf();
   }
 

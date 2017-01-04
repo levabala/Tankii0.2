@@ -1,4 +1,5 @@
 function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelfFun,createObjectFun,color){
+  Reactor.apply(this,[]);
   var gobj = this;
 
   //base props
@@ -18,11 +19,16 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   this.hpPerc = 1; //health points percentage
   this.wasDamaged = false;
   this.deathless = (hp == 'deathless');
+  this.VIEW_CHANGING_PROPERTIES = ['color']
 
   //external access
   this.destructSelfFun = destructSelfFun;
   this.createObjectFun = createObjectFun;
   this.commandsHandlers = [];
+
+  //events
+  this.registerEvent('death')
+  this.registerEvent('kill')
 
   //object's doings
   this.tick = function(){
@@ -35,18 +41,26 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
 
   }
 
-  this.damaged = function(damage){
+  this.damaged = function(damage, damager){
     if (gobj.deathless) return;
 
     gobj.hp -= damage;
-    if (gobj.hp < 1)
+    if (gobj.hp < 1){
       gobj.destructSelf();
+      gobj.hp = 0;
+      if (damager && gobj.constructor.name == 'Tank') damager.kill();
+    }
 
     gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
     gobj.wasDamaged = true;
   }
 
+  this.kill = function(id){
+    gobj.dispatchEvent('kill', id)
+  }
+
   this.destructSelf = function(){
+    gobj.dispatchEvent('death', gobj.id)
     gobj.destructSelfFun(gobj);
 
     for (var ch in gobj.commandsHandlers)
@@ -68,9 +82,18 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
     setAttr(obj.svgBody, 'height', obj.height);
   }
 
+  this.setColor = function(){
+
+  }
+
   //additional view elements
   this.generateView = function(obj){
 
+  }
+
+  this.updateView = function(){
+    $(gobj.svgBody).empty()
+    gobj.generateView(gobj)
   }
 
   //base view generation
@@ -78,7 +101,7 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
 
   //span for recreating
   this.createSnap = function(){
-    return {id: gobj.id, pos: gobj.pos, width: gobj.width, height: gobj.height, hp: gobj.hp, physical: gobj.physical, rotation: gobj.rotation, speed: gobj.speed};
+    return {id: gobj.id, pos: gobj.pos, width: gobj.width, height: gobj.height, hp: gobj.hp, physical: gobj.physical, rotation: gobj.rotation, speed: gobj.speed, color: gobj.color};
   }
 
   this.setProperties = function(props){

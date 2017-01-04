@@ -22,7 +22,14 @@ function initTanksRoomClient(){
       for (var c in changes){
         var cc = changes[c];
         if (cc.pos) cc.pos = new Pos(cc.pos.X, cc .pos.Y)
-        if (tanksroom.objects[c]) tanksroom.objects[c].setProperties(changes[c])
+        if (tanksroom.objects[c]) {
+          tanksroom.objects[c].setProperties(cc)
+          for (var p in tanksroom.objects[c].VIEW_CHANGING_PROPERTIES)
+            if (cc[tanksroom.objects[c].VIEW_CHANGING_PROPERTIES[p]]){
+              tanksroom.objects[c].updateView();
+              break;
+            }
+        }
       }
       lastTime = performance.now();
     },
@@ -34,8 +41,8 @@ function initTanksRoomClient(){
       console.log('Yeeah! Now I have a tank!')
     },
     'newObject': function(obj){
-      console.log('NEW OBJECT')
-      var gameobj = new tanksroom.GameObjectTypes[obj.constructorName](new Pos(obj.pos.X, obj.pos.Y),tanksroom.map,obj.width,obj.height,obj.hp,obj.physical,obj.rotation,obj.speed,tanksroom.removeObject,tanksroom.appendObject)
+      console.log(obj.color)
+      var gameobj = new tanksroom.GameObjectTypes[obj.constructorName](new Pos(obj.pos.X, obj.pos.Y),tanksroom.map,obj.width,obj.height,obj.hp,obj.physical,obj.rotation,obj.speed,tanksroom.removeObject,tanksroom.appendObject,obj.color)
       gameobj.id = obj.id;
       tanksroom.setObject(gameobj.id, gameobj)
     },

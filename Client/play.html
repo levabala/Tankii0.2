@@ -13,6 +13,8 @@
   <script src="ExternalLibs/download.js"></script>
   <script src="ExternalLibs/fileDrop.js"></script>
   <script src="Classes/common.js"></script>
+  <script src="Classes/Team.js"></script>
+  <script src="Classes/Event.js"></script>
   <script src="Classes/Map.js"></script>
   <script src="Classes/Bot.js"></script>
   <script src="Classes/GameObjects/GameObject.js"></script>
@@ -23,7 +25,7 @@
   <script src="Classes/TanksRoom.js"></script>
   <script src="Classes/TanksRoomClient.js"></script>
   <script src="Classes/TanksRoomServer.js"></script>
-  <style>  
+  <style>
     #ServersList{
       position: absolute;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -278,6 +280,10 @@
     if (MODILE_DEVICE) {
       setAttr($('#DownloadRoomButton')[0],"display","none")
     }
+
+    window.addEventListener('keyup',function(e){
+      if (e.keyCode == 9) toggleTheMenu(350)
+    })
   </script>
 
   <script src="connect.js"></script>

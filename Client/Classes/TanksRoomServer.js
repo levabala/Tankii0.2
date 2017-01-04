@@ -2,6 +2,34 @@ function TanksRoomServer(){
   TanksRoom.apply(this,arguments);
   var tr = this;
 
+  this.teams = {
+    Blue: new Team('Blue', 'darkblue'),
+    Red: new Team('Red', 'brown'),
+    Green: new Team('Green', 'green')
+  };
+
+  setInterval(function(){
+    console.log('----')
+    for (var t in tr.teams)
+      console.log('\t',t,tr.teams[t].totalKills,tr.teams[t].totalDeaths,tr.teams[t].playersCount)
+  },1000)
+
+  this.addToTeam = function(player,teamName){
+    var team;
+    if (tr.teams[teamName])
+      team = tr.teams[teamName];
+    else {
+      var smallest = tr.teams['Blue']; //'Blue' team is always here, yes?
+      for (var t in tr.teams)
+        if (t != 'Blue' && tr.teams[t].playersCount < smallest.playersCount) smallest = tr.teams[t];
+      team = smallest;
+    }
+
+    tr.changeObjectProperty(player.id, 'color', team.color)
+    team.addPlayer(player)
+    console.log(player.id,'to',team.name)
+  }
+
   this.stp = {  //standartTankParams
     size: {width: 3, height: 3},
     hp: 5,
@@ -55,6 +83,7 @@ function TanksRoomServer(){
 
     var messagesMap = {
       'command': function(comm){
+        if (clientTank.hp <= 0) return;
         commandsMap[comm]();
       }
     }
@@ -69,6 +98,8 @@ function TanksRoomServer(){
 
     //sending tank id to the player
     var tankId = tanksroom.appendObject(clientTank);
+    console.log(clientTank, tankId)
+    tanksroom.addToTeam(clientTank)
     peer.sendDataChannel.send(JSON.stringify({type: 'yourTankCreated', value: tankId}))
   }
 
@@ -97,20 +128,20 @@ function TanksRoomServer(){
         tr.restartHostTank();
         break;
       case 66:
-		if(Math.random()>0.5)tr.addBots(1, 'RandomBot');
-		else tr.addBots(1, 'SuicideBot');
+    		if(Math.random() > 0.8) tr.addBots(1, 'RandomBot');
+    		else tr.addBots(1, 'SuicideBot');
         break;
     }
   }
 
   //adding some stupid bots from available list
   this.addBots = function(count, botType){
-    console.log(botType)
   	for(var i = 0; i < count; i++){
   		var bot = new Tank(getPositionToSpawn(), tr.map, tr.stp.size.width, tr.stp.size.height, tr.stp.hp, true, tr.stp.rotation, tr.stp.speed, tr.removeObject, tr.appendObject, tr.stp.botColor)
   		tr.appendObject(bot);
-		if(botType=='SuicideBot') SuicideBot(bot);
-		if(botType=='RandomBot')RandomBot(bot);
+      tr.addToTeam(bot);
+  		if(botType == 'SuicideBot') SuicideBot(bot);
+  		if(botType == 'RandomBot') RandomBot(bot);
   	}
   }
 
@@ -170,7 +201,8 @@ function TanksRoomServer(){
     justTank.setCommandsHandler(j1)
 
     tr.appendObject(justTank);
-  }  
+    tr.addToTeam(justTank)
+  }
 }
 
 
@@ -186,7 +218,8 @@ function initTanksRoomServer(){
 
   tanksroom.enableMapDrawing();
   tanksroom.restartHostTank();
-	if(Math.random()>0.5)tanksroom.addBots(2, 'RandomBot');
+
+	if(Math.random()>0.5) tanksroom.addBots(2, 'RandomBot');
 	else tanksroom.addBots(2, 'SuicideBot');
 }
 

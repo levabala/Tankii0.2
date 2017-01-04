@@ -35,8 +35,8 @@ function SuicideBot(tank){
 var minfar = 1000000;
 var idminfar;
 for(var i in tanksroom.objects) {
-	if(tanksroom.objects[i].constructor.name=='Tank' && tanksroom.objects[i]!=tank){
-		if(farAB(tanksroom.objects[i].pos,tank.pos)<minfar){
+	if(tanksroom.objects[i].constructor.name == 'Tank' && tanksroom.objects[i] != tank && (!tanksroom.objects[i].team || tanksroom.objects[i].team.name != tank.team.name)){
+		if(farAB(tanksroom.objects[i].pos,tank.pos) < minfar){
 			minfar = farAB(tanksroom.objects[i].pos,tank.pos);
 			idminfar=i;
 		}
@@ -49,30 +49,30 @@ if(minfar >100){
 	if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
 		if(tank.pos.X<enemypos.X){
 			tank.toLeft();
-			
+
 		}
 		if(tank.pos.X>enemypos.X){
 			tank.toRight();
-			
+
 		}
 	}else{
 		if(tank.pos.Y>enemypos.Y){
 			tank.toTop();
-			
+
 		}
 		if(tank.pos.Y<enemypos.Y){
 			tank.toBottom();
-			
+
 		}
 	}
 }else if(Math.abs(tank.pos.X-enemypos.X)<Math.abs(tank.pos.Y-enemypos.Y)){
 	if(tank.pos.X>enemypos.X+1){
 		tank.toLeft();
-		
+
 	}
 	if(tank.pos.X<enemypos.X-1){
 		tank.toRight();
-		
+
 	}else{
 		if(tank.pos.Y<enemypos.Y-1){
 			tank.toBottom();
@@ -89,11 +89,11 @@ if(minfar >100){
 }else{
 	if(tank.pos.Y>enemypos.Y+1){
 		tank.toTop();
-		
+
 	}
 	if(tank.pos.Y<enemypos.Y-1){
 		tank.toBottom();
-		
+
 	}else{
 		if(tank.pos.X<enemypos.X-1){
 			tank.toRight();
@@ -109,6 +109,3 @@ if(minfar >100){
 	}
 }}else{tank.stop();}
 tank.onDestructSelf = function(){clearInterval(interval)}});}
-
-
-

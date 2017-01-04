@@ -2,6 +2,8 @@ function TanksRoom(map,jqcontainer){
   var tr = this;
   this.map = map;
   this.objects = {};
+  this.changedObjects = {};
+  this.removedObjects = [];
 
   //available Game Objects
   this.GameObjectTypes = {
@@ -19,6 +21,7 @@ function TanksRoom(map,jqcontainer){
 
     obj.id = counter;
     tr.objects[counter] = obj;
+    tr.changedObjects[obj.id] = {}
     jqcontainer.append(obj.svgBody);
 
     //set it to the map
@@ -59,6 +62,8 @@ function TanksRoom(map,jqcontainer){
   }
 
   this.removeObject = function(obj){
+    if (!obj) return;
+
     obj.hp = 0;
     obj.svgBody.remove()
     tr.removedObjects.push(obj.id)
@@ -92,17 +97,26 @@ function TanksRoom(map,jqcontainer){
   this.appendObjects([leftWall,rightWall,topWall,bottomWall]);
 
   //game loop
-  this.changedObjects = {};
-  this.removedObjects = [];
-
   this.runGameLoop = function(){
     var gameInterval = setInterval(function(){
       for (var o in tr.objects){
         var obj = tr.objects[o];
-        if (obj.tick())
-          tr.changedObjects[o] = {pos: obj.pos, rotation: obj.rotation, hp: obj.hp}; //"true" result means successful moving/rotating
+        if (obj.tick()){  //"true" result means successful moving/rotating
+          var changeObj = tr.changedObjects[o];
+          changeObj['pos'] = obj.pos;
+          changeObj['rotation'] = obj.rotation;
+          changeObj['hp'] = obj.pos;
+        }
       }
     }, 4);
+  }
+
+  this.changeObjectProperty = function(objId, propertyName, value){
+    tr.objects[objId][propertyName] = value;
+    tr.objects[objId].updateView();
+    
+    if (!tr.changedObjects[objId]) tr.changedObjects[objId] = {};
+    tr.changedObjects[objId][propertyName] = value;
   }
 
   this.stopGameLoop = function(){
@@ -111,6 +125,8 @@ function TanksRoom(map,jqcontainer){
 
   this.AcceptChanges = function(){
     tr.changedObjects = {};
+    for (var o in tr.objects)
+      tr.changedObjects[o] = {};
     tr.removedObjects = [];
   }
 
@@ -142,7 +158,7 @@ function BuildTanksRoomFromSnap(snap,container){
   for (var constr in snap.objects)
     for (var o in snap.objects[constr]){
       var objSnap = snap.objects[constr][o];
-      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
+      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject,objSnap.color)
       gameObj.id = objSnap.id;
       tanksroom.setObject(gameObj.id, gameObj)
     }
@@ -156,7 +172,7 @@ function BuildTanksRoomServerFromSnap(snap,container){
   for (var constr in snap.objects)
     for (var o in snap.objects[constr]){
       var objSnap = snap.objects[constr][o];
-      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject)
+      var gameObj = new tanksroom.GameObjectTypes[constr](new Pos(objSnap.pos.X, objSnap.pos.Y),map,objSnap.width,objSnap.height,objSnap.hp,objSnap.physical,objSnap.rotation,objSnap.speed,tanksroom.removeObject,tanksroom.appendObject,objSnap.color)
       gameObj.id = objSnap.id;
       tanksroom.setObject(gameObj.id, gameObj)
     }

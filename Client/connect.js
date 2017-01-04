@@ -5,9 +5,9 @@ var ICE_SERVERS = [
 ];
 
 var hashes = window.location.hash.split('#')
-var room = getParameterByName('room')
+var roomName = getParameterByName('room')
 var signalingServerAddress = getParameterByName('signalingServerIp')
-if (room) DEFAULT_ROOM = room;
+if (roomName) DEFAULT_ROOM = roomName;
 if (signalingServerAddress) SIGNALING_SERVER = signalingServerAddress;
 
 var signaling_socket = null;   /* our socket.io connection to our webserver */
@@ -15,12 +15,12 @@ var HostPeer = null;
 var HostId = false;
 var peers = {};                /* keep track of our peerConnection connections, indexed by peer_id (aka socket.io id) */
 var activePeers = [];
+var room = {};
 var isServer = false;
 
 function getParameterByName(name, url) {
-  if (!url) {
+  if (!url)
     url = window.location.href;
-  }
   name = name.replace(/[\[\]]/g, "\\$&");
   var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
       results = regex.exec(url);
@@ -85,6 +85,12 @@ function initWebRtc() {
     signaling_socket.emit('getServers');
     console.warn('Now I am a HOST')
     $('#Header')[0].innerHTML = 'Room: ' + DEFAULT_ROOM + '(my)'
+
+    //room object
+    room = {
+      players: activePeers,
+      teams: []
+    }
   });
 
   signaling_socket.on('JoinedToTheRoom', function(config){
@@ -122,12 +128,12 @@ function initWebRtc() {
       var sdchannel = peer_connection.createDataChannel(peer_id);
 
       sdchannel.onopen = function() {
-        console.log('SendChannel opened!',sdchannel);
+        //console.log('SendChannel opened!',sdchannel);
         sdchannel.send(JSON.stringify({type: 'notification', value:'Hi!'}));
         activePeers.push(sdchannel.label)
       };
       peers[peer_id].peerConnection.ondatachannel = function(rdchannel) {
-        console.log('ReceiveChannel opened!',rdchannel.channel);
+        //console.log('ReceiveChannel opened!',rdchannel.channel);
         /*rdchannel.channel.onmessage = function(e){
           console.warn('MESSAGE!', e);
         }*/
@@ -241,18 +247,18 @@ function initWebRtc() {
   * all the peerConnection sessions.
   */
  signaling_socket.on('removePeer', function(config) {
-     console.log('Signaling server said to remove peerConnection:', config);
+     //console.log('Signaling server said to remove peerConnection:', config);
      var peer_id = config.peer_id;
      var index = activePeers.indexOf(peer_id);
      if (index != -1) activePeers.splice(index,1)
 
      if (peer_id in peers) {
-       console.log(peers[peer_id])
-         if (peers[peer_id].peerConnection) peers[peer_id].peerConnection.close();
-         if (peers[peer_id].sendDataChannel) peers[peer_id].sendDataChannel.close();
-         if (peers[peer_id].recevingDataChannel) peers[peer_id].recevingDataChannel.close();
-         if (peers[peer_id].linkedTank) peers[peer_id].linkedTank.destructSelf();
-         else console.warn('Какая жалость.. Он даже не успел танком обзавестись :(')
+       //console.log(peers[peer_id])
+       if (peers[peer_id].peerConnection) peers[peer_id].peerConnection.close();
+       if (peers[peer_id].sendDataChannel) peers[peer_id].sendDataChannel.close();
+       if (peers[peer_id].recevingDataChannel) peers[peer_id].recevingDataChannel.close();
+       if (peers[peer_id].linkedTank) peers[peer_id].linkedTank.destructSelf();
+       else console.warn('Какая жалость.. Он даже не успел танком обзавестись :(')
      }
      delete peers[peer_id];
  });
