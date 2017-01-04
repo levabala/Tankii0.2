@@ -66,9 +66,6 @@ function TanksRoomServer(){
     });
     peer['linkedTank'] = clientTank;
 
-    peer.recevingDataChannel.onclose = function(){
-      console.warn('Неееееет... Мы потеряли игрока..');
-    }
 
     //sending tank id to the player
     var tankId = tanksroom.appendObject(clientTank);
@@ -100,7 +97,8 @@ function TanksRoomServer(){
         tr.restartHostTank();
         break;
       case 66:
-        tr.addBots(1, (Math.random() > 0.8) ? 'RandomBot' : 'SuicideBot');
+		if(Math.random()>0.5)tr.addBots(1, 'RandomBot');
+		else tr.addBots(1, 'SuicideBot');
         break;
     }
   }
@@ -111,7 +109,8 @@ function TanksRoomServer(){
   	for(var i = 0; i < count; i++){
   		var bot = new Tank(getPositionToSpawn(), tr.map, tr.stp.size.width, tr.stp.size.height, tr.stp.hp, true, tr.stp.rotation, tr.stp.speed, tr.removeObject, tr.appendObject, tr.stp.botColor)
   		tr.appendObject(bot);
-  		availableBots[botType](bot)
+		if(botType=='SuicideBot') SuicideBot(bot);
+		if(botType=='RandomBot')RandomBot(bot);
   	}
   }
 
@@ -187,7 +186,8 @@ function initTanksRoomServer(){
 
   tanksroom.enableMapDrawing();
   tanksroom.restartHostTank();
-  tanksroom.addBots(2, 'RandomBot')
+	if(Math.random()>0.5)tanksroom.addBots(2, 'RandomBot');
+	else tanksroom.addBots(2, 'SuicideBot');
 }
 
 function AcceptClient(peer){
