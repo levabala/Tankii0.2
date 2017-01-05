@@ -203,7 +203,7 @@
   <div id='TotalDiv' style='position: absolute; left: 0px; right: 0px; top: 0px; bottom: 10px; height: 100%'>
     <center><h1 id='Header'>Tanks 1990</h1></center>
     <div id='Menu' style='position:absolute; z-index: 999; top: 0px'>
-        <input type='button' onclick='if (tanksroom.addBots) if(Math.random()>0.5){tanksroom.addBots(1, "SuicideBot");}else{tanksroom.addBots(1,"RandomBots");} this.blur()' value='Добавить бота'/>
+        <input type='button' onclick='if (tanksroom.addBots)tanksroom.addBots(1, "FunctionalBot"); this.blur()' value='Добавить бота'/>
         <input type='button' onclick='var name = prompt("Enter roomName"); if (!name  || name.length == 0) return; container.innerHTML = ""; DEFAULT_ROOM = name;  disconnect();initWebRtc();' value='Создать комнату'/>
         <input type='button' id='DownloadRoomButton' onclick='downloadRoom(); this.blur()' value='Сохранить комнату'/>
     </div>
