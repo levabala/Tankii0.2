@@ -29,6 +29,7 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   //events
   this.registerEvent('death')
   this.registerEvent('kill')
+  this.registerEvent('teamkill')
 
   //object's doings
   this.tick = function(){
@@ -48,7 +49,9 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
     if (gobj.hp < 1){
       gobj.destructSelf();
       gobj.hp = 0;
-      if (damager && gobj.constructor.name == 'Tank') damager.kill();
+      if (damager && gobj.constructor.name == 'Tank')
+        if (gobj.team.name != damager.team.name) damager.kill();
+        else damager.teamkill();
     }
 
     gobj.svgBody.setAttributeNS(null,'fill-opacity', gobj.hp / gobj.maxhp)
@@ -57,6 +60,10 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
 
   this.kill = function(id){
     gobj.dispatchEvent('kill', id)
+  }
+
+  this.teamkill = function(id){
+    gobj.dispatchEvent('teamkill', id)
   }
 
   this.destructSelf = function(){
@@ -120,6 +127,6 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
   }
 
   this.rotationToString = function(rotation){
-    
+
   }
 }

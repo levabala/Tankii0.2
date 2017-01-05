@@ -62,7 +62,7 @@ function MovableGameObject(){
         changed = true;
       }
 
-      mgobj.IWantToDoSmth();      
+      mgobj.IWantToDoSmth();
 
       var collResult = checkCollisionFuns[mgobj.rotation.indexOf(1)]();
       if (collResult) {
@@ -113,8 +113,7 @@ function MovableGameObject(){
   }
 
   this.stop = function(){
-    if (mgobj.moveOn == 0) return;
-    console.warn('stopped')
+    if (mgobj.moveOn == 0) return;    
     //mgobj.stopping = true;
     mgobj.IWantToDoSmth = function(){
         RoundPosition();

@@ -30,6 +30,7 @@ function FunctionalBot(){
   Bot.apply(this,arguments);
   var bot = this;
   var moveAccuracy = (bot.tank.width + bot.tank.height) / 4
+  var lastWeight = 'topW'
   var weightToDirection = {
     'topW': 'toTop',
     'rightW': 'toRight',
@@ -39,29 +40,29 @@ function FunctionalBot(){
 
   this.interval = setInterval(makeDecision, 100);
 
-  var leftWeightFun = function(myPos, enemyPos){
-    return 1 / (myPos.X - enemyPos.X)//(myPos.X > enemyPos.X)// * (myPos.X - enemyPos.X);
+  var leftWeightFun = function(myX, enemyX){
+    return 1 / (myX - enemyX)//(myPos.X > enemyPos.X)// * (myPos.X - enemyPos.X);
   }
-  var rightWeightFun = function(myPos, enemyPos){
-    return 1 / (enemyPos.X - myPos.X)//(myPos.X < enemyPos.X)// * (enemyPos.X - myPos.X);
+  var rightWeightFun = function(myX, enemyX){
+    return 1 / (enemyX - myX)//(myPos.X < enemyPos.X)// * (enemyPos.X - myPos.X);
   }
-  var topWeightFun = function(myPos, enemyPos){
-    return 1 / (myPos.Y - enemyPos.Y)//(myPos.Y > enemyPos.Y)// * (myPos.Y - enemyPos.Y);
+  var topWeightFun = function(myY, enemyY){
+    return 1 / (myY - enemyY)//(myPos.Y > enemyPos.Y)// * (myPos.Y - enemyPos.Y);
   }
-  var bottomWeightFun = function(myPos, enemyPos){
-    return 1 / (enemyPos.Y - myPos.Y)//(myPos.Y < enemyPos.Y)// * (enemyPos.Y - myPos.Y);
+  var bottomWeightFun = function(myY, enemyY){
+    return 1 / (enemyY - myY)//(myPos.Y < enemyPos.Y)// * (enemyPos.Y - myPos.Y);
   }
 
   function Weights(obj){
     var weights = this;
     if (bot.tank.pos.Y != obj.pos.Y){
-      this.topW = topWeightFun(bot.tank.pos,obj.pos)
-      this.bottomW = bottomWeightFun(bot.tank.pos,obj.pos)
+      this.topW = topWeightFun(bot.tank.pos.Y + bot.tank.height / 2,obj.pos.Y + obj.height / 2)
+      this.bottomW = bottomWeightFun(bot.tank.pos.Y + bot.tank.height / 2,obj.pos.Y + obj.height / 2)
     }
     else this.topW = this.bottomW = 0
     if (bot.tank.pos.X != obj.pos.X){
-      this.rightW = rightWeightFun(bot.tank.pos,obj.pos)
-      this.leftW = leftWeightFun(bot.tank.pos,obj.pos)
+      this.rightW = rightWeightFun(bot.tank.pos.X + bot.tank.width / 2,obj.pos.X + obj.width / 2)
+      this.leftW = leftWeightFun(bot.tank.pos.X + bot.tank.width / 2,obj.pos.X + obj.width / 2)
     }
     else this.rightW = this.leftW = 0
 
@@ -84,28 +85,32 @@ function FunctionalBot(){
     var finalWeights = new Weights(bot.tank); //zero weights
 
     for (var o in tanksroom.objects)
-      if (tanksroom.objects[o].constructor.name == 'Tank') finalWeights.mergeWith(new Weights(tanksroom.objects[o]))
+      if (tanksroom.objects[o].constructor.name == 'Tank' && tanksroom.objects[o].team.name != bot.tank.team.name) finalWeights.mergeWith(new Weights(tanksroom.objects[o]))
 
     //finalWeights.revert();
 
+    console.log(finalWeights)
     var choosenDirection = {direction: weightToDirection['topW'], weight: finalWeights['topW']};
     for (var w in finalWeights)
       if (finalWeights[w] > choosenDirection.weight && 1 / finalWeights[w] > moveAccuracy) choosenDirection = {direction: weightToDirection[w], weight: finalWeights[w]};
 
     finalWeights.revert();
 
-    var dx = finalWeights.leftW + finalWeights.rightW;
-    var dy = finalWeights.topW + finalWeights.bottomW;
+    var dx = finalWeights.leftW + finalWeights.rightW//(finalWeights.leftW > finalWeights.rightW) ? finalWeights.leftW : finalWeights.rightW;
+    var dy = finalWeights.topW + finalWeights.bottomW//(finalWeights.topW > finalWeights.bottomW) ? finalWeights.topW : finalWeights.bottomW;
 
-    console.log(dx,dy,moveAccuracy,choosenDirection.direction,dx < moveAccuracy || dy < moveAccuracy)
+    console.log(dx,dy,choosenDirection.direction)//,moveAccuracy,choosenDirection.direction,dx < moveAccuracy || dy < moveAccuracy)
     if (dx < moveAccuracy || dy < moveAccuracy) {
+      console.log('stop')
       bot.tank.stop()
-      bot.tank.commands['stop']();
-      bot.tank.commands['shoot']();
     }
-    bot.tank.commands[choosenDirection.direction]()
+    if (choosenDirection.direction != lastWeight){//finalWeights[lastWeight] < moveAccuracy){
+      bot.tank.commands[choosenDirection.direction]()
+      lastWeight = choosenDirection.direction;
+    }
+    if (finalWeights[lastWeight] < moveAccuracy)
+      bot.tank.shoot();
 
-    //console.log(finalWeights)
     //console.log(choosenDirection)
     //console.log(bot.tank.pos)
   }

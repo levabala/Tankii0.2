@@ -9,6 +9,11 @@ function TanksRoomServer(){
   };
   this.bots = {};
 
+  /*setInterval(function(){
+    console.log('---- TeamName, Kills, Deaths, Players, Teamkills')
+    for (var t in tr.teams)
+      console.log('\t',t,tr.teams[t].totalKills,tr.teams[t].totalDeaths,tr.teams[t].playersCount,tr.teams[t].teamKills)
+  },100)*/
 
   this.addToTeam = function(player,teamName){
     var team;
@@ -23,7 +28,7 @@ function TanksRoomServer(){
 
     tr.changeObjectProperty(player.id, 'color', team.color)
     team.addPlayer(player)
-    console.log(player.id,'to',team.name)
+    //console.log(player.id,'to',team.name)
   }
 
   this.stp = {  //standartTankParams
@@ -124,19 +129,19 @@ function TanksRoomServer(){
         tr.restartHostTank();
         break;
       case 66:
-    		//if(Math.random() > 0.8) tr.addBots(1, 'RandomBot');
-    		tr.addBots(1, 'FunctionalBot');
+    		//tr.addBots(1, 'RandomBot', 'Green');
+    		tr.addBots(1, 'FunctionalBot', 'Red');
+        tr.addBots(1, 'SuicideBot', 'Blue');
         break;
     }
   }
 
   //adding some stupid bots from available list
-  this.addBots = function(count, botType){
+  this.addBots = function(count, botType,team){
   	for(var i = 0; i < count; i++){
   		var bot = new Tank(getPositionToSpawn(), tr.map, tr.stp.size.width, tr.stp.size.height, tr.stp.hp, true, tr.stp.rotation, tr.stp.speed, tr.removeObject, tr.appendObject, tr.stp.botColor)
   		tr.appendObject(bot);
-      tr.addToTeam(bot);
-      console.log(bot)
+      tr.addToTeam(bot,team);
       new availableBots[botType](bot)
   	}
   }
@@ -215,8 +220,15 @@ function initTanksRoomServer(){
   tanksroom.enableMapDrawing();
   tanksroom.restartHostTank();
 
+  var interval = setInterval(function(){
+    tanksroom.addBots(1, 'RandomBot', 'Green');
+    tanksroom.addBots(1, 'FunctionalBot', 'Red');
+    tanksroom.addBots(1, 'SuicideBot', 'Blue');
+  },500);
+  clearInterval(interval)
+
 	//if(Math.random() > 0.5) tanksroom.addBots(2, 'RandomBot');
-	tanksroom.addBots(1, 'FunctionalBot');
+	//tanksroom.addBots(1, 'FunctionalBot');
   //tanksroom.addBots(1, 'SuicideBot');
   //tanksroom.addBots(2, 'RandomBot');
 }

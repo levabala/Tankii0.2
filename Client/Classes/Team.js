@@ -4,6 +4,7 @@ function Team(name, color){
   this.name = name;
   this.color = (color) ? color : 'darkgray'
   this.totalKills = 0;
+  this.teamKills = 0;
   this.totalDeaths = 0;
   this.players = {};
   this.playersCount = 0;
@@ -22,6 +23,9 @@ function Team(name, color){
       //console.log(id, 'killed by', player.id);
       team.totalKills++;
       player['kills']++;
+    })
+    player.addEventListener('teamkill', function(id){
+      team.teamKills++;      
     })
     team.players[player.id] = player;
     team.playersCount++;
