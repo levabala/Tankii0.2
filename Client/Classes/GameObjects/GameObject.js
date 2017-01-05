@@ -118,4 +118,8 @@ function GameObject(pos,map,width,height,hp,physical,rotation,speed,destructSelf
     if (gobj.hpPerc != newHpPerc) gobj.svgBody.setAttributeNS(null,'fill-opacity', newHpPerc)
     gobj.hpPerc = newHpPerc;
   }
+
+  this.rotationToString = function(rotation){
+    
+  }
 }

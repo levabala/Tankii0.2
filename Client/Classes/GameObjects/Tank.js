@@ -55,6 +55,7 @@ function Tank(){
     canShoot = false;
     setTimeout(function(){canShoot = true; clearTimeout(shootTimeout); shootTimeout = null;}, tank.reloadTime)
   }
+  this.commands['shoot'] = this.shoot;
 
   this.generateView(this);
 }

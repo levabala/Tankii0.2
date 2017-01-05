@@ -62,7 +62,7 @@ function MovableGameObject(){
         changed = true;
       }
 
-      mgobj.IWantToDoSmth();
+      mgobj.IWantToDoSmth();      
 
       var collResult = checkCollisionFuns[mgobj.rotation.indexOf(1)]();
       if (collResult) {
@@ -114,6 +114,7 @@ function MovableGameObject(){
 
   this.stop = function(){
     if (mgobj.moveOn == 0) return;
+    console.warn('stopped')
     //mgobj.stopping = true;
     mgobj.IWantToDoSmth = function(){
         RoundPosition();
@@ -132,7 +133,7 @@ function MovableGameObject(){
     'toRight': mgobj.toRight,
     'toTop': mgobj.toTop,
     'toBottom': mgobj.toBottom,
-    'toStop': mgobj.toStop
+    'stop': mgobj.stop
   }
 
   this.setCommandsHandler = function(ch){

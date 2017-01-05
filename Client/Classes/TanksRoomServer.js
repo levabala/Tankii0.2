@@ -7,6 +7,7 @@ function TanksRoomServer(){
     Red: new Team('Red', 'brown'),
     Green: new Team('Green', 'green')
   };
+  this.bots = {};
 
 
   this.addToTeam = function(player,teamName){
@@ -123,8 +124,8 @@ function TanksRoomServer(){
         tr.restartHostTank();
         break;
       case 66:
-    		if(Math.random() > 0.8) tr.addBots(1, 'RandomBot');
-    		else tr.addBots(1, 'SuicideBot');
+    		//if(Math.random() > 0.8) tr.addBots(1, 'RandomBot');
+    		tr.addBots(1, 'FunctionalBot');
         break;
     }
   }
@@ -135,8 +136,8 @@ function TanksRoomServer(){
   		var bot = new Tank(getPositionToSpawn(), tr.map, tr.stp.size.width, tr.stp.size.height, tr.stp.hp, true, tr.stp.rotation, tr.stp.speed, tr.removeObject, tr.appendObject, tr.stp.botColor)
   		tr.appendObject(bot);
       tr.addToTeam(bot);
-  		if(botType == 'SuicideBot') SuicideBot(bot);
-  		if(botType == 'RandomBot') RandomBot(bot);
+      console.log(bot)
+      new availableBots[botType](bot)
   	}
   }
 
@@ -214,14 +215,17 @@ function initTanksRoomServer(){
   tanksroom.enableMapDrawing();
   tanksroom.restartHostTank();
 
-	if(Math.random()>0.5) tanksroom.addBots(2, 'RandomBot');
-	else tanksroom.addBots(2, 'SuicideBot');
+	//if(Math.random() > 0.5) tanksroom.addBots(2, 'RandomBot');
+	tanksroom.addBots(1, 'FunctionalBot');
+  //tanksroom.addBots(1, 'SuicideBot');
+  //tanksroom.addBots(2, 'RandomBot');
 }
-setInterval(function(){
+/*setInterval(function(){
 	for(var i = 0; i < 10;i++)
-	if(Math.random()>0.5) tanksroom.addBots(1, 'RandomBot');
+	if (Math.random() > 0.5) tanksroom.addBots(1, 'RandomBot');
 	else tanksroom.addBots(1, 'SuicideBot');
-},30000);
+}, 30000);*/
+
 function AcceptClient(peer){
   tanksroom.registerPlayer(peer);
 }
